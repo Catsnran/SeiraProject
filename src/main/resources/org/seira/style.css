@@ -1,0 +1,40 @@
+/* I checked, and unfortunately JavaFX CSS doesn't support animations.
+ * (https://stackoverflow.com/a/31267254)
+ * It also doesn't support variables.
+ * This is not proper CSS3, folks.
+ */
+
+.root {
+    -fx-background-color: seashell;
+    -fx-font-family: "Inter Display";
+}
+
+/* Anything that need to have accented text color. */
+.title, .nav Button.tab-btn.selected {
+    -fx-text-fill: saddlebrown;
+}
+
+.nav {
+    -fx-background-color: #8882;
+}
+
+.nav Button {
+    -fx-padding: 10px;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;
+    -fx-font-weight: 600;
+}
+
+.nav Button.tab-btn.selected {
+    -fx-background-color: #fffff080;
+    -fx-border-width: 0 4px 0 0;
+    -fx-border-color: saddlebrown;
+    -fx-font-weight: bold;
+}
+
+.nav Button.addtrans-btn {
+    -fx-background-radius: 6px;
+    -fx-background-color: linear-gradient(to bottom right, saddlebrown, chocolate);
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}

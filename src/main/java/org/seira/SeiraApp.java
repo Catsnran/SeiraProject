@@ -10,7 +10,11 @@ import java.io.IOException;
 public class SeiraApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
-        throw new RuntimeException("You forgot to implement this app");
+        FXMLLoader fxmlLoader = new FXMLLoader(SeiraApp.class.getResource("console.fxml"));
+        Scene scene = new Scene(fxmlLoader.load());
+        stage.setTitle("Hello!");
+        stage.setScene(scene);
+        stage.show();
     }
 
     public static void main(String[] args) {
