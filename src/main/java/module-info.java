@@ -5,9 +5,11 @@ module org.seira {
     requires org.controlsfx.controls;
     requires com.dlsc.formsfx;
     requires org.kordamp.bootstrapfx.core;
+    requires java.sql;
+    requires jbcrypt;
 
-    opens org.seira to javafx.fxml;
-    exports org.seira;
-    exports org.seira.controller;
-    opens org.seira.controller to javafx.fxml;
+    opens com.seira to javafx.fxml;
+    exports com.seira;
+    exports com.seira.controllers;
+    opens com.seira.controllers to javafx.fxml;
 }
