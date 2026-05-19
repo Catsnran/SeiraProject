@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.seira.controllers.BudgetController"
+            fitToWidth="true" styleClass="page-scroll" hbarPolicy="NEVER">
+
+    <VBox styleClass="page-content" spacing="24">
+        <padding><Insets top="32" left="32" bottom="32" right="32"/></padding>
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="Budget Curator" styleClass="page-title"/>
+                <Label text="Narasi pertumbuhan finansialmu melalui alokasi yang terencana." styleClass="page-subtitle"/>
+            </VBox>
+            <Button text="⏮ Siklus Sebelumnya" styleClass="btn-outline" onAction="#openPreviousCycles"/>
+        </HBox>
+
+        <!-- Main layout: Left panel + Right envelopes -->
+        <HBox spacing="20">
+
+            <!-- Left: Wealth Reservoir + Pace -->
+            <VBox spacing="16" prefWidth="280" minWidth="260">
+
+                <!-- Wealth Reservoir card -->
+                <VBox styleClass="card" spacing="16">
+                    <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="🐷" style="-fx-font-size: 28;"/>
+                        <VBox spacing="2">
+                            <Label text="Wealth" styleClass="reservoir-title"/>
+                            <Label text="Reservoir" styleClass="reservoir-title"/>
+                        </VBox>
+                    </HBox>
+                    <VBox spacing="4">
+                        <Label text="TOTAL ANGGARAN DIALOKASIKAN" styleClass="mini-label"/>
+                        <Label fx:id="totalAllocatedLabel" text="Rp 0" styleClass="stat-large"/>
+                    </VBox>
+                    <VBox spacing="4">
+                        <Label text="SISA UNTUK DIALOKASIKAN" styleClass="mini-label"/>
+                        <Label fx:id="remainingLabel" text="Rp 0" styleClass="stat-medium-accent"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Monthly Pace card -->
+                <VBox styleClass="card" spacing="12">
+                    <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="Laju Bulanan" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="paceStatusLabel" text="ON TRACK" styleClass="badge-green"/>
+                    </HBox>
+                    <Pane fx:id="pacePaneContainer" prefHeight="60" prefWidth="200"/>
+                    <Label fx:id="paceDescLabel" text="Memuat data laju..." styleClass="mini-label" wrapText="true"/>
+                </VBox>
+
+                <!-- Add new budget button -->
+                <Button text="＋ Tambah Anggaran Baru" styleClass="btn-primary" maxWidth="Infinity" onAction="#showAddBudgetDialog"/>
+            </VBox>
+
+            <!-- Right: Category Envelopes -->
+            <VBox HBox.hgrow="ALWAYS" spacing="12">
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Category Envelopes" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                </HBox>
+                <VBox fx:id="categoryEnvelopesList" spacing="12"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</ScrollPane>
