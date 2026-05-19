@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox prefHeight="700" prefWidth="1100" styleClass="login-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.LoginController">
+
+    <!-- Left Branding Panel: StackPane, gambar DULU (di belakang), teks SETELAH (di depan) -->
+    <StackPane prefWidth="520" styleClass="login-left" HBox.hgrow="ALWAYS">
+
+        <!-- LAYER 1 (belakang): Gambar burung — pojok kanan bawah -->
+        <ImageView fx:id="logo" fitHeight="400" fitWidth="360" pickOnBounds="false" preserveRatio="true">
+            <image>
+                <Image url="@../images/SeiraEnblem.png" />
+            </image>
+            <StackPane.alignment>BOTTOM_RIGHT</StackPane.alignment>
+            <StackPane.margin>
+                <Insets />
+            </StackPane.margin>
+        </ImageView>
+
+        <!-- LAYER 2 (depan): Semua teks — karena dideklarasi setelah ImageView -->
+        <VBox>
+            <padding><Insets bottom="40" left="48" right="48" top="40" /></padding>
+
+            <Label styleClass="brand-logo" text="Seira" />
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <VBox spacing="16">
+                <Label styleClass="login-headline" text="Curate your" />
+                <Label styleClass="login-headline" text="wealth with" />
+                <Label styleClass="login-headline-accent" text="precision." />
+                <Label styleClass="login-tagline" text="Experience a more sophisticated way to manage your&#10;financial narrative. Seira transforms complex data into a&#10;clear, editorial ledger for your life." wrapText="true" />
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS" />
+
+            <Label styleClass="login-footer" text="ESTABLISHED MMXXIV © SEIRA FISCAL" />
+        </VBox>
+
+    </StackPane>
+
+    <!-- Right Login Panel -->
+    <VBox alignment="CENTER" prefHeight="700.0" prefWidth="384.0" styleClass="login-right" HBox.hgrow="ALWAYS">
+        <padding><Insets bottom="0" left="64" right="64" top="0" /></padding>
+
+        <VBox maxWidth="360" spacing="8">
+            <Label styleClass="login-title" text="Welcome Back" />
+            <Label styleClass="login-subtitle" text="Please enter your credentials to access your ledger." wrapText="true" />
+        </VBox>
+
+        <Region prefHeight="40" />
+
+        <VBox maxWidth="360" spacing="20">
+            <VBox spacing="6">
+                <Label styleClass="field-label" text="USERNAME OR EMAIL" />
+                <TextField fx:id="emailField" promptText="curator@seira.com" styleClass="login-field" />
+            </VBox>
+
+            <VBox spacing="6">
+                <HBox>
+                    <Label styleClass="field-label" text="PASSWORD" HBox.hgrow="ALWAYS" />
+                    <Label styleClass="forgot-link" text="Forgot password?">
+                        <HBox.margin>
+                            <Insets left="194.0" />
+                        </HBox.margin></Label>
+                </HBox>
+                <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="login-field" />
+            </VBox>
+
+            <Label fx:id="errorLabel" styleClass="error-label" visible="false" wrapText="true" />
+
+            <Region prefHeight="8" />
+
+            <Button maxWidth="Infinity" onAction="#handleLogin" styleClass="btn-primary-full" text="Login" />
+
+            <HBox alignment="CENTER" spacing="4">
+                <Label styleClass="login-subtitle" text="New to Seira?" />
+                <Label onMouseClicked="#goToRegister" styleClass="link-label" text="Create an account" />
+            </HBox>
+        </VBox>
+    </VBox>
+
+</HBox>
