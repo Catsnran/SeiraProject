@@ -2,6 +2,7 @@ package com.seira.dao;
 
 import com.seira.dao.impl.*;
 import com.seira.dao.interfaces.*;
+import com.seira.models.Transaction;
 
 /**
  * Factory untuk mendapatkan instance DAO.

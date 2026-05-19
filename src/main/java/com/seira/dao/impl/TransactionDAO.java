@@ -2,8 +2,8 @@ package com.seira.dao.impl;
 
 import com.seira.dao.DBConnection;
 import com.seira.dao.interfaces.ITransactionDAO;
-import com.seira.model.PaymentMethod;
-import com.seira.model.Transaction;
+import com.seira.models.PaymentMethod;
+import com.seira.models.Transaction;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;

@@ -2,7 +2,7 @@ package com.seira.dao.impl;
 
 import com.seira.dao.DBConnection;
 import com.seira.dao.interfaces.IUserDAO;
-import com.seira.model.User;
+import com.seira.models.User;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.PreparedStatement;

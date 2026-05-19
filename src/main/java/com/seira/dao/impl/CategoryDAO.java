@@ -2,7 +2,7 @@ package com.seira.dao.impl;
 
 import com.seira.dao.DBConnection;
 import com.seira.dao.interfaces.ICategoryDAO;
-import com.seira.model.Category;
+import com.seira.models.Category;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

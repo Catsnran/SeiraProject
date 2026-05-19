@@ -1,6 +1,6 @@
 package com.seira.dao.interfaces;
 
-import com.seira.model.PaymentMethod;
+import com.seira.models.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.util.List;

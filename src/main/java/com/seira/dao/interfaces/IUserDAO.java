@@ -1,6 +1,6 @@
 package com.seira.dao.interfaces;
 
-import com.seira.model.User;
+import com.seira.models.User;
 
 public interface IUserDAO {
     boolean register(String username, String email, String password);

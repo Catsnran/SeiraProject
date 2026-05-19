@@ -1,4 +1,4 @@
-package com.seira.model;
+package com.seira.models;
 
 import java.math.BigDecimal;
 import java.time.YearMonth;

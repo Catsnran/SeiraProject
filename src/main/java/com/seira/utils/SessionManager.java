@@ -1,6 +1,6 @@
 package com.seira.utils;
 
-import com.seira.model.User;
+import com.seira.models.User;
 import javafx.stage.Stage;
 
 public class SessionManager {

@@ -1,6 +1,6 @@
 package com.seira.dao.interfaces;
 
-import com.seira.model.Transaction;
+import com.seira.models.Transaction;
 
 import java.time.LocalDate;
 import java.util.List;

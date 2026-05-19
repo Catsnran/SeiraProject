@@ -1,0 +1,252 @@
+package com.seira.controllers;
+
+import com.seira.dao.DAOFactory;
+import com.seira.models.Category;
+import com.seira.models.PaymentMethod;
+import com.seira.models.Transaction;
+import com.seira.utils.SessionManager;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+
+public class AddTransactionControllers {
+
+    @FXML private Label amountDisplay;
+    @FXML private Button tabExpense, tabIncome, tabTransfer;
+    @FXML private ComboBox<PaymentMethod> accountCombo;
+    @FXML private ComboBox<Category> categoryCombo;
+    @FXML private ComboBox<PaymentMethod> transferToCombo;
+    @FXML private VBox categoryRow;
+    @FXML private VBox transferToRow;
+    @FXML private DatePicker datePicker;
+    @FXML private TextField referenceField;
+    @FXML private TextArea notesArea;
+    @FXML private Label errorLabel;
+
+    private StringBuilder amountStr = new StringBuilder("0");
+    private String type = "EXPENSE";
+    private int userId;
+    private Transaction editTarget = null;
+    private String returnPage = "transactions";
+    private MainControllers mainController;
+
+    @FXML
+    public void initialize() {
+        userId = SessionManager.getCurrentUser().getId();
+        datePicker.setValue(LocalDate.now());
+        loadCombos();
+        updateAmountDisplay();
+        setActiveTab(tabExpense);
+    }
+
+    public void setMainController(MainControllers mc) { this.mainController = mc; }
+    public void setCurrentPage(String page) { this.returnPage = page; }
+
+    public void setEditMode(Transaction t) {
+        this.editTarget = t;
+        this.type = t.getType();
+        amountStr = new StringBuilder(t.getAmount().toBigInteger().toString());
+        updateAmountDisplay();
+        datePicker.setValue(t.getDate());
+        if (t.getReference() != null) referenceField.setText(t.getReference());
+        if (t.getNotes() != null) notesArea.setText(t.getNotes());
+
+        switch (type) {
+            case "INCOME" -> { setActiveTab(tabIncome); showCategoryMode(); }
+            case "TRANSFER" -> { setActiveTab(tabTransfer); showTransferMode(); }
+            default -> { setActiveTab(tabExpense); showCategoryMode(); }
+        }
+
+        for (PaymentMethod pm : accountCombo.getItems())
+            if (pm.getId() == t.getPaymentMethodId()) { accountCombo.setValue(pm); break; }
+        for (Category c : categoryCombo.getItems())
+            if (c.getId() == t.getCategoryId()) { categoryCombo.setValue(c); break; }
+    }
+
+    private void loadCombos() {
+        List<PaymentMethod> methods = DAOFactory.getPaymentMethodDAO().findAll(userId);
+        accountCombo.getItems().setAll(methods);
+        if (!methods.isEmpty()) accountCombo.setValue(methods.get(0));
+
+        transferToCombo.getItems().setAll(methods);
+        if (methods.size() > 1) transferToCombo.setValue(methods.get(1));
+        else if (!methods.isEmpty()) transferToCombo.setValue(methods.get(0));
+
+        loadCategoryCombo();
+    }
+
+    private void loadCategoryCombo() {
+        String catType = "INCOME".equals(type) ? "INCOME" : "EXPENSE";
+        List<Category> cats = DAOFactory.getCategoryDAO().findAll(userId, catType);
+        categoryCombo.getItems().setAll(cats);
+        if (!cats.isEmpty()) categoryCombo.setValue(cats.get(0));
+    }
+
+    @FXML private void selectExpense() {
+        type = "EXPENSE";
+        setActiveTab(tabExpense);
+        showCategoryMode();
+        loadCategoryCombo();
+    }
+
+    @FXML private void selectIncome() {
+        type = "INCOME";
+        setActiveTab(tabIncome);
+        showCategoryMode();
+        loadCategoryCombo();
+    }
+
+    @FXML private void selectTransfer() {
+        type = "TRANSFER";
+        setActiveTab(tabTransfer);
+        showTransferMode();
+    }
+
+    /** Tampilkan row kategori, sembunyikan row transfer-to */
+    private void showCategoryMode() {
+        categoryRow.setVisible(true);
+        categoryRow.setManaged(true);
+        transferToRow.setVisible(false);
+        transferToRow.setManaged(false);
+    }
+
+    /** Tampilkan row transfer-to, sembunyikan kategori */
+    private void showTransferMode() {
+        categoryRow.setVisible(false);
+        categoryRow.setManaged(false);
+        transferToRow.setVisible(true);
+        transferToRow.setManaged(true);
+    }
+
+    private void setActiveTab(Button active) {
+        for (Button b : new Button[]{tabExpense, tabIncome, tabTransfer}) {
+            b.getStyleClass().remove("type-tab-active");
+            b.getStyleClass().remove("type-tab");
+            b.getStyleClass().add(b == active ? "type-tab-active" : "type-tab");
+        }
+    }
+
+    // === Numpad ===
+    @FXML private void pressKey1() { appendDigit("1"); }
+    @FXML private void pressKey2() { appendDigit("2"); }
+    @FXML private void pressKey3() { appendDigit("3"); }
+    @FXML private void pressKey4() { appendDigit("4"); }
+    @FXML private void pressKey5() { appendDigit("5"); }
+    @FXML private void pressKey6() { appendDigit("6"); }
+    @FXML private void pressKey7() { appendDigit("7"); }
+    @FXML private void pressKey8() { appendDigit("8"); }
+    @FXML private void pressKey9() { appendDigit("9"); }
+    @FXML private void pressKey0() { appendDigit("0"); }
+    @FXML private void pressDot() {
+        // Rupiah tidak pakai desimal
+        updateAmountDisplay();
+    }
+    @FXML private void pressBackspace() {
+        if (amountStr.length() > 1) amountStr.deleteCharAt(amountStr.length() - 1);
+        else amountStr = new StringBuilder("0");
+        updateAmountDisplay();
+    }
+
+    private void appendDigit(String d) {
+        if (amountStr.toString().equals("0")) amountStr = new StringBuilder();
+        if (amountStr.length() >= 13) return; // max 9.999.999.999.999
+        amountStr.append(d);
+        updateAmountDisplay();
+    }
+
+    private void updateAmountDisplay() {
+        try {
+            long val = Long.parseLong(amountStr.toString());
+            amountDisplay.setText("Rp " + String.format("%,d", val).replace(',', '.'));
+        } catch (NumberFormatException e) {
+            amountDisplay.setText("Rp 0");
+        }
+    }
+
+    @FXML
+    private void handleSave() {
+        errorLabel.setVisible(false);
+
+        long amount;
+        try {
+            amount = Long.parseLong(amountStr.toString());
+            if (amount <= 0) { showError("Jumlah harus lebih dari nol."); return; }
+        } catch (NumberFormatException e) { showError("Jumlah tidak valid."); return; }
+
+        if (accountCombo.getValue() == null) { showError("Pilih akun terlebih dahulu."); return; }
+
+
+        if ("TRANSFER".equals(type)) {
+            // Transfer: kurangi dari akun asal, tambah ke akun tujuan
+            if (transferToCombo.getValue() == null) { showError("Pilih akun tujuan."); return; }
+            PaymentMethod from = accountCombo.getValue();
+            PaymentMethod to = transferToCombo.getValue();
+            if (from.getId() == to.getId()) { showError("Akun asal dan tujuan tidak boleh sama."); return; }
+
+            String desc = notesArea.getText().trim();
+            if (desc.isEmpty()) desc = "Transfer ke " + to.getName();
+
+            // Buat 2 transaksi: EXPENSE dari akun asal, INCOME ke akun tujuan
+            // Gunakan kategori "Other" untuk transfer
+            List<Category> allCats = DAOFactory.getCategoryDAO().findAll(userId, "EXPENSE");
+            int catId = allCats.isEmpty() ? 1 : allCats.get(allCats.size() - 1).getId();
+
+            Transaction out = new Transaction();
+            out.setUserId(userId); out.setDescription(desc);
+            out.setAmount(BigDecimal.valueOf(amount)); out.setType("EXPENSE");
+            out.setDate(datePicker.getValue()); out.setCategoryId(catId);
+            out.setPaymentMethodId(from.getId());
+            out.setReference("TRANSFER"); out.setNotes("Transfer ke " + to.getName());
+
+            Transaction in = new Transaction();
+            in.setUserId(userId); in.setDescription("Transfer dari " + from.getName());
+            in.setAmount(BigDecimal.valueOf(amount)); in.setType("INCOME");
+            in.setDate(datePicker.getValue()); in.setCategoryId(catId);
+            in.setPaymentMethodId(to.getId());
+            in.setReference("TRANSFER"); in.setNotes("Dari " + from.getName());
+
+            boolean ok1 = DAOFactory.getTransactionDAO().add(out);
+            boolean ok2 = DAOFactory.getTransactionDAO().add(in);
+            if (ok1 && ok2) navigateBack();
+            else showError("Gagal menyimpan transfer.");
+            return;
+        }
+
+        // EXPENSE / INCOME
+        if (categoryCombo.getValue() == null) { showError("Pilih kategori terlebih dahulu."); return; }
+
+        String desc = notesArea.getText().trim();
+        if (desc.isEmpty()) desc = categoryCombo.getValue().getName();
+
+        Transaction t = editTarget != null ? editTarget : new Transaction();
+        t.setUserId(userId);
+        t.setDescription(desc);
+        t.setAmount(BigDecimal.valueOf(amount));
+        t.setType(type);
+        t.setDate(datePicker.getValue());
+        t.setCategoryId(categoryCombo.getValue().getId());
+        t.setPaymentMethodId(accountCombo.getValue().getId());
+        t.setReference(referenceField.getText().trim());
+        t.setNotes(notesArea.getText().trim());
+
+        boolean ok = editTarget != null ? DAOFactory.getTransactionDAO().update(t) : DAOFactory.getTransactionDAO().add(t);
+        if (ok) navigateBack();
+        else showError("Gagal menyimpan transaksi.");
+    }
+
+    private void navigateBack() {
+        if (mainController != null) mainController.loadPage(returnPage);
+    }
+
+    @FXML
+    private void handleCancel() { navigateBack(); }
+
+    private void showError(String msg) {
+        errorLabel.setText(msg);
+        errorLabel.setVisible(true);
+    }
+}

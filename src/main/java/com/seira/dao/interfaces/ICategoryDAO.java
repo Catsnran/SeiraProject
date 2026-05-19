@@ -1,6 +1,6 @@
 package com.seira.dao.interfaces;
 
-import com.seira.model.Category;
+import com.seira.models.Category;
 
 import java.util.List;
 

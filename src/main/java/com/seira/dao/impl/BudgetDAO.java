@@ -2,7 +2,7 @@ package com.seira.dao.impl;
 
 import com.seira.dao.DBConnection;
 import com.seira.dao.interfaces.IBudgetDAO;
-import com.seira.model.Budget;
+import com.seira.models.Budget;
 
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;

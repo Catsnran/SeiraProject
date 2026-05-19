@@ -1,6 +1,6 @@
 package com.seira.dao.interfaces;
 
-import com.seira.model.Budget;
+import com.seira.models.Budget;
 
 import java.time.YearMonth;
 import java.util.List;
