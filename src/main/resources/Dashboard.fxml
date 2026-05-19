@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<ScrollPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.seira.controllers.DashboardController"
+            fitToWidth="true" styleClass="page-scroll" hbarPolicy="NEVER">
+
+    <VBox styleClass="page-content" spacing="24">
+        <padding><Insets top="32" left="32" bottom="32" right="32"/></padding>
+
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT">
+            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                <Label text="FINANCIAL OVERVIEW" styleClass="page-eyebrow"/>
+                <Label text="Curated Wealth Summary" styleClass="page-title"/>
+            </VBox>
+            <HBox spacing="12">
+                <Button text="Export Ledger" styleClass="btn-outline" onAction="#exportLedger"/>
+                <Button text="Monthly Review" styleClass="btn-primary" onAction="#openMonthlyReview"/>
+            </HBox>
+        </HBox>
+
+        <!-- Top cards -->
+        <HBox spacing="16">
+            <!-- Net Worth -->
+            <VBox styleClass="card" HBox.hgrow="ALWAYS" prefWidth="340" spacing="16">
+                <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="🏛" style="-fx-font-size:16;"/>
+                    <Label text="Total Net Worth" styleClass="card-label"/>
+                </HBox>
+                <Label fx:id="netWorthLabel" text="Rp 0" styleClass="stat-large"/>
+                <Label fx:id="netWorthChange" text="+0.0% dari bulan lalu" styleClass="stat-change-positive"/>
+                <HBox spacing="16">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="LIQUID ASSETS" styleClass="mini-label"/>
+                        <Label fx:id="liquidAssetsLabel" text="Rp 0" styleClass="mini-value"/>
+                    </VBox>
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="INVESTASI" styleClass="mini-label"/>
+                        <Label fx:id="investmentsLabel" text="Rp 0" styleClass="mini-value"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Monthly Income -->
+            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
+                <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+                <Label text="💵" style="-fx-font-size:28;"/>
+                <Label text="Pemasukan Bulanan" styleClass="card-label"/>
+                <Label fx:id="monthlyIncomeLabel" text="Rp 0" styleClass="stat-medium"/>
+                <ProgressBar fx:id="incomeProgress" progress="0" styleClass="progress-bar progress-green" maxWidth="Infinity"/>
+                <Label fx:id="incomeProgressLabel" text="0% dari target proyeksi" styleClass="mini-label"/>
+            </VBox>
+
+            <!-- Monthly Expense -->
+            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
+                <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+                <Label text="🛒" style="-fx-font-size:28;"/>
+                <Label text="Pengeluaran Bulanan" styleClass="card-label"/>
+                <Label fx:id="monthlyExpenseLabel" text="Rp 0" styleClass="stat-medium"/>
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label fx:id="burnLabel" text="STABIL" styleClass="badge-green"/>
+                    <Label fx:id="expenseChangeLabel" text="+0% vs bulan lalu" styleClass="mini-label"/>
+                </HBox>
+                <ProgressBar fx:id="expenseProgress" progress="0" styleClass="progress-bar progress-orange" maxWidth="Infinity"/>
+            </VBox>
+        </HBox>
+
+        <!-- Chart + Burn Rate + Budgets row -->
+        <HBox spacing="16">
+            <!-- Trend Chart -->
+            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="16" prefWidth="500">
+                <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Income vs Expense Trends" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <HBox spacing="16" alignment="CENTER">
+                        <HBox spacing="4" alignment="CENTER">
+                            <Label text="■" style="-fx-text-fill:#C87941; -fx-font-size:14;"/>
+                            <Label text="INCOME" styleClass="legend-label"/>
+                        </HBox>
+                        <HBox spacing="4" alignment="CENTER">
+                            <Label text="■" style="-fx-text-fill:#E8DDD0; -fx-font-size:14;"/>
+                            <Label text="EXPENSE" styleClass="legend-label"/>
+                        </HBox>
+                    </HBox>
+                </HBox>
+                <Pane fx:id="trendChartPane" prefHeight="200" styleClass="chart-pane"/>
+            </VBox>
+
+            <!-- Daily Burn Rate -->
+            <VBox styleClass="card" prefWidth="210" spacing="12" alignment="TOP_CENTER">
+                <padding><Insets top="24" left="20" bottom="24" right="20"/></padding>
+                <HBox alignment="CENTER_LEFT" spacing="6">
+                    <Label text="⏱" style="-fx-font-size:14;"/>
+                    <Label text="Daily Burn Rate" styleClass="card-title"/>
+                </HBox>
+                <Pane fx:id="burnRatePane" prefHeight="140" prefWidth="140" maxWidth="160"/>
+                <Label fx:id="burnRateDesc" text="Memuat..." styleClass="mini-label" wrapText="true" textAlignment="CENTER"/>
+            </VBox>
+
+            <!-- Active Budgets -->
+            <VBox styleClass="card" prefWidth="230" spacing="12">
+                <padding><Insets top="24" left="20" bottom="24" right="20"/></padding>
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Active Budgets" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Button text="LIHAT SEMUA" styleClass="btn-ghost" onAction="#openBudgets"/>
+                </HBox>
+                <VBox fx:id="budgetMiniList" spacing="10"/>
+            </VBox>
+        </HBox>
+
+        <!-- Bottom: Strategy + Recent Ledger -->
+        <HBox spacing="16">
+            <VBox styleClass="card-muted" HBox.hgrow="ALWAYS" spacing="12">
+                <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
+                <Label text="INVESTMENT STRATEGY" styleClass="page-eyebrow"/>
+                <Label fx:id="investmentStrategyLabel"
+                       text="Menganalisis portofoliomu..." styleClass="body-text" wrapText="true"/>
+                <Label text="Rebalance Insights" styleClass="link-label"/>
+            </VBox>
+            <VBox styleClass="card-muted" HBox.hgrow="ALWAYS" spacing="12">
+                <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
+                <Label text="RECENT LEDGER" styleClass="page-eyebrow"/>
+                <VBox fx:id="recentLedgerList" spacing="8"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</ScrollPane>
