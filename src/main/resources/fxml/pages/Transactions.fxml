@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox styleClass="page-hbox" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.TransactionsController">
+<HBox styleClass="page-hbox" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.TransactionsControllers">
 
     <!-- Main ledger -->
     <VBox spacing="20" HBox.hgrow="ALWAYS">
