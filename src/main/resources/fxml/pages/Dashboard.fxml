@@ -4,7 +4,7 @@
 <?import javafx.geometry.*?>
 
 <ScrollPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.seira.controllers.DashboardController"
+            fx:controller="com.seira.controllers.DashboardControllers"
             fitToWidth="true" styleClass="page-scroll" hbarPolicy="NEVER">
 
     <VBox styleClass="page-content" spacing="24">

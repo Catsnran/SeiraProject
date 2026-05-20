@@ -4,7 +4,7 @@
 <?import javafx.geometry.*?>
 
 <HBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.seira.controllers.RegisterController"
+      fx:controller="com.seira.controllers.RegisterControllers"
       prefWidth="1100" prefHeight="700"
       styleClass="login-root">
 

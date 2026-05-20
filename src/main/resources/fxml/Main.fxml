@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<HBox prefHeight="760" prefWidth="1200" styleClass="main-root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.seira.controllers.MainController">
+<HBox prefHeight="760" prefWidth="1200" styleClass="main-root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.seira.controllers.MainControllers">
 
     <!-- Sidebar -->
     <VBox fx:id="sidebar" prefWidth="220" styleClass="sidebar">

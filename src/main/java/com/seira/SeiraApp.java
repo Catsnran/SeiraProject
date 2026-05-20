@@ -8,10 +8,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-/**
- * Entry point aplikasi Seira — Fiscal Curator.
- * Menginisialisasi database, memuat CSS, dan menampilkan halaman login pertama kali.
- */
+
 public class SeiraApp extends Application {
 
     /**

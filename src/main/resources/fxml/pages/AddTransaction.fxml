@@ -4,7 +4,7 @@
 <?import javafx.geometry.*?>
 
 <HBox xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.seira.controllers.AddTransactionController"
+      fx:controller="com.seira.controllers.AddTransactionControllers"
       styleClass="page-hbox" spacing="24">
     <padding><Insets top="32" left="32" bottom="32" right="32"/></padding>
 

@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.seira.controllers.ReportsController">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.seira.controllers.ReportsControllers">
 
     <VBox spacing="24" styleClass="page-content">
         <padding><Insets bottom="32" left="32" right="32" top="32" /></padding>
