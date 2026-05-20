@@ -301,6 +301,12 @@ public class BudgetControllers {
         loadData();
     }
 
+    @FXML
+    private void openNextCycles() {
+        currentPeriod = currentPeriod.plusMonths(1);
+        loadData();
+    }
+
     private String getCategoryDesc(String name) {
         if (name == null) return "";
         return switch (name.toLowerCase()) {
