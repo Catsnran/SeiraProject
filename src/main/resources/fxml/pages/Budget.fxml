@@ -1,71 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.seira.controllers.BudgetControllers"
-            fitToWidth="true" styleClass="page-scroll" hbarPolicy="NEVER">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.BudgetControllers">
 
-    <VBox styleClass="page-content" spacing="24">
-        <padding><Insets top="32" left="32" bottom="32" right="32"/></padding>
+    <VBox spacing="24" styleClass="page-content">
+        <padding><Insets bottom="32" left="32" right="32" top="32" /></padding>
 
         <!-- Header -->
         <HBox alignment="CENTER_LEFT">
             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                <Label text="Budget Curator" styleClass="page-title"/>
-                <Label text="Narasi pertumbuhan finansialmu melalui alokasi yang terencana." styleClass="page-subtitle"/>
+                <Label styleClass="page-title" text="Budget Curator" />
+                <Label styleClass="page-subtitle" text="Narasi pertumbuhan finansialmu melalui alokasi yang terencana." />
             </VBox>
-            <Button text="⏮ Siklus Sebelumnya" styleClass="btn-outline" onAction="#openPreviousCycles"/>
+            <Button onAction="#openPreviousCycles" styleClass="btn-outline" text="⏮ Siklus Sebelumnya">
+            <HBox.margin>
+               <Insets right="10.0" />
+            </HBox.margin></Button>
+         <Button layoutX="344.0" layoutY="17.0" onAction="#openNextCycles" styleClass="btn-outline" text="Siklus Setelahnya ⏭" />
         </HBox>
 
         <!-- Main layout: Left panel + Right envelopes -->
         <HBox spacing="20">
 
             <!-- Left: Wealth Reservoir + Pace -->
-            <VBox spacing="16" prefWidth="280" minWidth="260">
+            <VBox minWidth="260" prefWidth="280" spacing="16">
 
                 <!-- Wealth Reservoir card -->
-                <VBox styleClass="card" spacing="16">
-                    <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
-                    <HBox spacing="12" alignment="CENTER_LEFT">
-                        <Label text="🐷" style="-fx-font-size: 28;"/>
+                <VBox spacing="16" styleClass="card">
+                    <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label style="-fx-font-size: 28;" text="🐷" />
                         <VBox spacing="2">
-                            <Label text="Wealth" styleClass="reservoir-title"/>
-                            <Label text="Reservoir" styleClass="reservoir-title"/>
+                            <Label styleClass="reservoir-title" text="Wealth" />
+                            <Label styleClass="reservoir-title" text="Reservoir" />
                         </VBox>
                     </HBox>
                     <VBox spacing="4">
-                        <Label text="TOTAL ANGGARAN DIALOKASIKAN" styleClass="mini-label"/>
-                        <Label fx:id="totalAllocatedLabel" text="Rp 0" styleClass="stat-large"/>
+                        <Label styleClass="mini-label" text="TOTAL ANGGARAN DIALOKASIKAN" />
+                        <Label fx:id="totalAllocatedLabel" styleClass="stat-large" text="Rp 0" />
                     </VBox>
                     <VBox spacing="4">
-                        <Label text="SISA UNTUK DIALOKASIKAN" styleClass="mini-label"/>
-                        <Label fx:id="remainingLabel" text="Rp 0" styleClass="stat-medium-accent"/>
+                        <Label styleClass="mini-label" text="SISA UNTUK DIALOKASIKAN" />
+                        <Label fx:id="remainingLabel" styleClass="stat-medium-accent" text="Rp 0" />
                     </VBox>
                 </VBox>
 
                 <!-- Monthly Pace card -->
-                <VBox styleClass="card" spacing="12">
-                    <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
+                <VBox spacing="12" styleClass="card">
+                    <padding><Insets bottom="20" left="20" right="20" top="20" /></padding>
                     <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="Laju Bulanan" styleClass="card-title" HBox.hgrow="ALWAYS"/>
-                        <Label fx:id="paceStatusLabel" text="ON TRACK" styleClass="badge-green"/>
+                        <Label styleClass="card-title" text="Laju Bulanan" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="paceStatusLabel" styleClass="badge-green" text="ON TRACK" />
                     </HBox>
-                    <Pane fx:id="pacePaneContainer" prefHeight="60" prefWidth="200"/>
-                    <Label fx:id="paceDescLabel" text="Memuat data laju..." styleClass="mini-label" wrapText="true"/>
+                    <Pane fx:id="pacePaneContainer" prefHeight="60" prefWidth="200" />
+                    <Label fx:id="paceDescLabel" styleClass="mini-label" text="Memuat data laju..." wrapText="true" />
                 </VBox>
 
                 <!-- Add new budget button -->
-                <Button text="＋ Tambah Anggaran Baru" styleClass="btn-primary" maxWidth="Infinity" onAction="#showAddBudgetDialog"/>
+                <Button maxWidth="Infinity" onAction="#showAddBudgetDialog" styleClass="btn-primary" text="＋ Tambah Anggaran Baru" />
             </VBox>
 
             <!-- Right: Category Envelopes -->
-            <VBox HBox.hgrow="ALWAYS" spacing="12">
+            <VBox spacing="12" HBox.hgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="Category Envelopes" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Label styleClass="card-title" text="Category Envelopes" HBox.hgrow="ALWAYS" />
                 </HBox>
-                <VBox fx:id="categoryEnvelopesList" spacing="12"/>
+                <VBox fx:id="categoryEnvelopesList" spacing="12" />
             </VBox>
         </HBox>
     </VBox>

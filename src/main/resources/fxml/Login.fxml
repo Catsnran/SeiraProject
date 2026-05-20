@@ -8,7 +8,7 @@
 <HBox prefHeight="700" prefWidth="1100" styleClass="login-root" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.LoginControllers">
 
     <!-- Left Branding Panel: StackPane, gambar DULU (di belakang), teks SETELAH (di depan) -->
-    <StackPane prefWidth="520" styleClass="login-left" HBox.hgrow="ALWAYS">
+    <StackPane prefWidth="597.0" styleClass="login-left" HBox.hgrow="ALWAYS">
 
         <!-- LAYER 1 (belakang): Gambar burung — pojok kanan bawah -->
         <ImageView fx:id="logo" fitHeight="400" fitWidth="360" pickOnBounds="false" preserveRatio="true">
@@ -40,7 +40,6 @@
 
             <Label styleClass="login-footer" text="ESTABLISHED MMXXIV © SEIRA FISCAL" />
         </VBox>
-
     </StackPane>
 
     <!-- Right Login Panel -->
