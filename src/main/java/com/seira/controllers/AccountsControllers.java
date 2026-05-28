@@ -5,6 +5,7 @@ import com.seira.models.PaymentMethod;
 import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
 import com.seira.utils.StyledDialog;
+import com.seira.utils.Toast;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -14,6 +15,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+import javafx.util.Duration;
+import javafx.application.Platform;
+import javafx.scene.control.ListView;
+import java.util.concurrent.CompletableFuture;
+import com.seira.models.StockAsset;
+import com.seira.utils.YahooFinanceService;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -41,12 +50,19 @@ public class AccountsControllers {
         liquidityChangeLabel.setText("+2.4% dari bulan lalu");
 
         accountCardsBox.getChildren().clear();
-        String[] typeColors = {"#C87941", "#4A90D9", "#27AE60", "#9B59B6"};
+        String[] typeColors = {"#C87941", "#4A90D9", "#27AE60", "#9B59B6", "#E07B54"};
         for (int i = 0; i < methods.size(); i++) {
             accountCardsBox.getChildren().add(buildAccountCard(methods.get(i), typeColors[i % typeColors.length]));
         }
-        if (methods.isEmpty()) {
-            Label empty = new Label("Belum ada akun. Tambah akun baru untuk memulai.");
+
+        // Draw stock assets cards
+        List<StockAsset> stocks = DAOFactory.getStockAssetDAO().findAll(userId);
+        for (int i = 0; i < stocks.size(); i++) {
+            accountCardsBox.getChildren().add(buildStockCard(stocks.get(i), typeColors[(methods.size() + i) % typeColors.length]));
+        }
+
+        if (methods.isEmpty() && stocks.isEmpty()) {
+            Label empty = new Label("Belum ada akun atau aset saham. Tambah baru untuk memulai.");
             empty.getStyleClass().add("mini-label");
             empty.setPadding(new Insets(20));
             accountCardsBox.getChildren().add(empty);
@@ -54,6 +70,7 @@ public class AccountsControllers {
 
         drawDiversificationBar(methods, total);
         buildRecentAllocations(methods);
+        updateTotalLiquidity();
     }
 
     private VBox buildAccountCard(PaymentMethod pm, String color) {
@@ -141,7 +158,7 @@ public class AccountsControllers {
         String[] times = {"2 menit lalu", "1 jam lalu", "Baru saja", "5 menit lalu", "30 menit lalu"};
         for (int i = 0; i < methods.size(); i++) {
             PaymentMethod pm = methods.get(i);
-            HBox row = new HBox(0);
+            HBox row = new HBox(16);
             row.setStyle("-fx-background-color: #FDFAF5; -fx-border-color: #F0EBE0; -fx-border-width: 0 0 1 0;");
             row.setPadding(new Insets(14, 20, 14, 20));
             row.setAlignment(Pos.CENTER_LEFT);
@@ -174,46 +191,164 @@ public class AccountsControllers {
             empty.setPadding(new Insets(16, 20, 16, 20));
             recentAllocationsList.getChildren().add(empty);
         }
-    }
-
-    @FXML
+    }    @FXML
     private void openAddAccount() {
         TextField nameField = StyledDialog.field("Nama akun (mis: BCA Utama)");
         ComboBox<String> typeCombo = StyledDialog.combo();
-        typeCombo.getItems().addAll("CASH", "M-BANKING", "SAVINGS", "E-WALLET", "INVESTMENT");
+        typeCombo.getItems().addAll("CASH", "M-BANKING", "SAVINGS", "E-WALLET", "INVESTMENT", "Saham");
         typeCombo.setValue("M-BANKING");
         TextField balanceField = StyledDialog.field("Saldo awal (mis: 5000000)");
         TextField descField = StyledDialog.field("Deskripsi (mis: Rekening utama)");
         Label errLbl = StyledDialog.errorLabel();
 
+        VBox nameGroup = StyledDialog.fieldGroup("NAMA AKUN", nameField);
+        VBox typeGroup = StyledDialog.fieldGroup("TIPE AKUN", typeCombo);
+        VBox balanceGroup = StyledDialog.fieldGroup("SALDO AWAL (Rp)", balanceField);
+        VBox descGroup = StyledDialog.fieldGroup("DESKRIPSI", descField);
+
+        // Saham specific fields
+        TextField searchField = StyledDialog.field("Cari saham (mis: TSLA, BBCA.JK)");
+        VBox stockSearchGroup = StyledDialog.fieldGroup("CARI SAHAM", searchField);
+        
+        ListView<YahooFinanceService.StockSearchResult> suggestionList = new ListView<>();
+        suggestionList.setPrefHeight(100);
+        suggestionList.setVisible(false);
+        suggestionList.setManaged(false);
+
+        TextField lotField = StyledDialog.field("Jumlah Lot (minimal 1)");
+        VBox lotGroup = StyledDialog.fieldGroup("JUMLAH LOT", lotField);
+
+        stockSearchGroup.setVisible(false); stockSearchGroup.setManaged(false);
+        lotGroup.setVisible(false); lotGroup.setManaged(false);
+
+        final String[] selectedSymbol = {null};
+        final String[] selectedName = {null};
+
+        typeCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            boolean isStock = "Saham".equalsIgnoreCase(newVal);
+            nameGroup.setVisible(!isStock); nameGroup.setManaged(!isStock);
+            balanceGroup.setVisible(!isStock); balanceGroup.setManaged(!isStock);
+            descGroup.setVisible(!isStock); descGroup.setManaged(!isStock);
+
+            stockSearchGroup.setVisible(isStock); stockSearchGroup.setManaged(isStock);
+            lotGroup.setVisible(isStock); lotGroup.setManaged(isStock);
+            if (!isStock) {
+                suggestionList.setVisible(false);
+                suggestionList.setManaged(false);
+            }
+        });
+
+        // Search Autocomplete with Debounce logic
+        final Timeline[] searchDebounce = {null};
+        searchField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (searchDebounce[0] != null) {
+                searchDebounce[0].stop();
+            }
+            String query = newVal.trim();
+            // Don't search if user just selected a suggestion
+            if (selectedSymbol[0] != null && newVal.startsWith(selectedSymbol[0])) {
+                return;
+            }
+            selectedSymbol[0] = null;
+            selectedName[0] = null;
+
+            if (query.length() < 2) {
+                suggestionList.setVisible(false);
+                suggestionList.setManaged(false);
+                return;
+            }
+
+            searchDebounce[0] = new Timeline(new KeyFrame(Duration.millis(350), event -> {
+                CompletableFuture.supplyAsync(() -> YahooFinanceService.searchStocks(query))
+                    .thenAcceptAsync(results -> {
+                        if (results.isEmpty()) {
+                            suggestionList.setVisible(false);
+                            suggestionList.setManaged(false);
+                        } else {
+                            suggestionList.getItems().setAll(results);
+                            suggestionList.setVisible(true);
+                            suggestionList.setManaged(true);
+                        }
+                    }, Platform::runLater);
+            }));
+            searchDebounce[0].play();
+        });
+
+        suggestionList.setOnMouseClicked(event -> {
+            YahooFinanceService.StockSearchResult selected = suggestionList.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                selectedSymbol[0] = selected.getSymbol();
+                selectedName[0] = selected.getName();
+                searchField.setText(selected.getSymbol() + " — " + selected.getName());
+                suggestionList.setVisible(false);
+                suggestionList.setManaged(false);
+            }
+        });
+
         Stage dialog = new StyledDialog.Builder()
                 .title("Tambah Akun Baru")
-                .subtitle("Daftarkan sumber danamu")
+                .subtitle("Daftarkan sumber dana atau aset saham")
                 .icon("🏦")
-                .confirmText("Tambah Akun")
+                .confirmText("Tambah")
                 .content(
-                        StyledDialog.fieldGroup("NAMA AKUN", nameField),
-                        StyledDialog.fieldGroup("TIPE AKUN", typeCombo),
-                        StyledDialog.fieldGroup("SALDO AWAL (Rp)", balanceField),
-                        StyledDialog.fieldGroup("DESKRIPSI", descField),
+                        typeGroup,
+                        nameGroup,
+                        balanceGroup,
+                        descGroup,
+                        stockSearchGroup,
+                        suggestionList,
+                        lotGroup,
                         errLbl
                 )
                 .onConfirm(() -> {
-                    String name = nameField.getText().trim();
-                    String balText = balanceField.getText().trim();
-                    if (name.isEmpty()) { StyledDialog.showError(errLbl, "Nama akun tidak boleh kosong."); return; }
-                    try {
-                        BigDecimal bal = new BigDecimal(balText.isEmpty() ? "0" : balText);
-                        PaymentMethod pm = new PaymentMethod();
-                        pm.setUserId(userId); pm.setName(name);
-                        pm.setType(typeCombo.getValue()); pm.setBalance(bal);
-                        pm.setDescription(descField.getText().trim());
-                        DAOFactory.getPaymentMethodDAO().add(pm);
-                        // Close and reload
-                        nameField.getScene().getWindow().hide();
-                        loadData();
-                    } catch (NumberFormatException e) {
-                        StyledDialog.showError(errLbl, "Saldo harus berupa angka (tanpa titik/koma).");
+                    String type = typeCombo.getValue();
+                    if ("Saham".equalsIgnoreCase(type)) {
+                        if (selectedSymbol[0] == null) {
+                            StyledDialog.showError(errLbl, "Silakan pilih saham valid dari daftar pencarian.");
+                            return;
+                        }
+                        String lotText = lotField.getText().trim();
+                        if (lotText.isEmpty()) {
+                            StyledDialog.showError(errLbl, "Jumlah lot tidak boleh kosong.");
+                            return;
+                        }
+                        try {
+                            int lot = Integer.parseInt(lotText);
+                            if (lot < 1) {
+                                StyledDialog.showError(errLbl, "Jumlah lot minimal 1.");
+                                return;
+                            }
+                            StockAsset sa = new StockAsset();
+                            sa.setUserId(userId);
+                            sa.setStockSymbol(selectedSymbol[0]);
+                            sa.setStockName(selectedName[0]);
+                            sa.setTotalLot(lot);
+                            
+                            DAOFactory.getStockAssetDAO().add(sa);
+                            
+                            searchField.getScene().getWindow().hide();
+                            loadData();
+                            Toast.showSuccess("Aset saham berhasil ditambahkan ✓");
+                        } catch (NumberFormatException e) {
+                            StyledDialog.showError(errLbl, "Jumlah lot harus berupa angka bulat.");
+                        }
+                    } else {
+                        String name = nameField.getText().trim();
+                        String balText = balanceField.getText().trim();
+                        if (name.isEmpty()) { StyledDialog.showError(errLbl, "Nama akun tidak boleh kosong."); return; }
+                        try {
+                            BigDecimal bal = new BigDecimal(balText.isEmpty() ? "0" : balText);
+                            PaymentMethod pm = new PaymentMethod();
+                            pm.setUserId(userId); pm.setName(name);
+                            pm.setType(type); pm.setBalance(bal);
+                            pm.setDescription(descField.getText().trim());
+                            DAOFactory.getPaymentMethodDAO().add(pm);
+                            nameField.getScene().getWindow().hide();
+                            loadData();
+                            Toast.showSuccess("Akun berhasil ditambahkan ✓");
+                        } catch (NumberFormatException e) {
+                            StyledDialog.showError(errLbl, "Saldo harus berupa angka (tanpa titik/koma).");
+                        }
                     }
                 })
                 .build();
@@ -248,6 +383,7 @@ public class AccountsControllers {
                         DAOFactory.getPaymentMethodDAO().updateBalance(pm.getId(), pm.getBalance());
                         nameField.getScene().getWindow().hide();
                         loadData();
+                        Toast.showSuccess("Akun berhasil diperbarui ✓");
                     } catch (NumberFormatException e) {
                         StyledDialog.showError(errLbl, "Saldo tidak valid.");
                     }
@@ -265,6 +401,7 @@ public class AccountsControllers {
             if (btn == ButtonType.OK) {
                 DAOFactory.getPaymentMethodDAO().delete(pm.getId());
                 loadData();
+                Toast.showSuccess("Akun berhasil dihapus ✓");
             }
         });
     }
@@ -279,5 +416,98 @@ public class AccountsControllers {
             case "INVESTMENT" -> "📈";
             default -> "💳";
         };
+    }
+
+    private VBox buildStockCard(StockAsset sa, String color) {
+        VBox card = new VBox(12);
+        card.getStyleClass().add("account-card");
+        card.setPadding(new Insets(20));
+        card.setPrefWidth(210);
+        card.setStyle("-fx-background-color: #FDFAF5; -fx-background-radius: 14; -fx-border-color: #E8DDD0; -fx-border-radius: 14; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+
+        HBox topRow = new HBox();
+        topRow.setAlignment(Pos.CENTER_LEFT);
+        Label iconLbl = new Label("📈");
+        iconLbl.setStyle("-fx-font-size: 22;");
+        HBox.setHgrow(iconLbl, Priority.ALWAYS);
+        Label typeLbl = new Label("SAHAM");
+        typeLbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 9; -fx-font-weight: bold; " +
+                "-fx-background-color: " + color + "22; -fx-background-radius: 4; -fx-padding: 2 7;");
+        topRow.getChildren().addAll(iconLbl, typeLbl);
+
+        Label nameLbl = new Label(sa.getStockSymbol());
+        nameLbl.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1A0F05;");
+        Label descLbl = new Label(sa.getStockName() + "\n(" + sa.getTotalLot() + " Lot)");
+        descLbl.setStyle("-fx-font-size: 11; -fx-text-fill: #8B7355;");
+        descLbl.setMinHeight(30);
+
+        Label valLbl = new Label("Memuat...");
+        valLbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 17; -fx-font-weight: bold;");
+
+        Region accentBar = new Region();
+        accentBar.setPrefHeight(3);
+        accentBar.setMaxWidth(Double.MAX_VALUE);
+        accentBar.setStyle("-fx-background-color: linear-gradient(to right, " + color + ", " + color + "44); -fx-background-radius: 2;");
+
+        HBox actions = new HBox(6);
+        Button delBtn = new Button("Hapus");
+        delBtn.setStyle("-fx-background-color: transparent; -fx-text-fill: #C0392B; -fx-font-size: 11; " +
+                "-fx-padding: 4 10; -fx-background-radius: 5; -fx-border-color: #E8C5C0; -fx-border-width: 1; " +
+                "-fx-border-radius: 5; -fx-cursor: hand;");
+        delBtn.setOnAction(e -> confirmDeleteStock(sa));
+        actions.getChildren().add(delBtn);
+
+        card.getChildren().addAll(topRow, nameLbl, descLbl, valLbl, accentBar, actions);
+
+        CompletableFuture.supplyAsync(() -> {
+            YahooFinanceService.StockChartData data = YahooFinanceService.getChartData(sa.getStockSymbol());
+            List<YahooFinanceService.StockPricePoint> prices = data.getPrices();
+            if (!prices.isEmpty()) {
+                return prices.get(prices.size() - 1).getPrice();
+            }
+            return 0.0;
+        }).thenAcceptAsync(price -> {
+            double totalVal = price * sa.getTotalLot() * 100;
+            valLbl.setText(FormatUtil.formatCurrency(totalVal));
+            updateTotalLiquidity();
+        }, Platform::runLater);
+
+        return card;
+    }
+
+    private void confirmDeleteStock(StockAsset sa) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Hapus Aset Saham");
+        alert.setHeaderText("Hapus \"" + sa.getStockSymbol() + "\"?");
+        alert.setContentText("Tindakan ini tidak dapat dibatalkan.");
+        alert.showAndWait().ifPresent(btn -> {
+            if (btn == ButtonType.OK) {
+                DAOFactory.getStockAssetDAO().delete(sa.getId());
+                loadData();
+                Toast.showSuccess("Aset saham berhasil dihapus ✓");
+            }
+        });
+    }
+
+    private void updateTotalLiquidity() {
+        double pmTotal = DAOFactory.getPaymentMethodDAO().findAll(userId).stream()
+                .mapToDouble(pm -> pm.getBalance().doubleValue()).sum();
+        
+        List<StockAsset> stocks = DAOFactory.getStockAssetDAO().findAll(userId);
+        
+        CompletableFuture.supplyAsync(() -> {
+            double stockTotal = 0;
+            for (StockAsset sa : stocks) {
+                YahooFinanceService.StockChartData data = YahooFinanceService.getChartData(sa.getStockSymbol());
+                List<YahooFinanceService.StockPricePoint> prices = data.getPrices();
+                if (!prices.isEmpty()) {
+                    double price = prices.get(prices.size() - 1).getPrice();
+                    stockTotal += price * sa.getTotalLot() * 100;
+                }
+            }
+            return stockTotal;
+        }).thenAcceptAsync(stockTotal -> {
+            totalLiquidityLabel.setText(FormatUtil.formatCurrency(pmTotal + stockTotal));
+        }, Platform::runLater);
     }
 }
