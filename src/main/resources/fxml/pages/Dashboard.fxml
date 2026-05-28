@@ -13,12 +13,12 @@
         <!-- Header -->
         <HBox alignment="CENTER_LEFT">
             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                <Label text="FINANCIAL OVERVIEW" styleClass="page-eyebrow"/>
-                <Label text="Curated Wealth Summary" styleClass="page-title"/>
+                <Label text="IKHTISAR KEUANGAN" styleClass="page-eyebrow"/>
+                <Label text="Ringkasan Keuangan" styleClass="page-title"/>
             </VBox>
             <HBox spacing="12">
-                <Button text="Export Ledger" styleClass="btn-outline" onAction="#exportLedger"/>
-                <Button text="Monthly Review" styleClass="btn-primary" onAction="#openMonthlyReview"/>
+                <Button text="Ekspor Catatan" styleClass="btn-outline" onAction="#exportLedger"/>
+                <Button text="Tinjauan Bulanan" styleClass="btn-primary" onAction="#openMonthlyReview"/>
             </HBox>
         </HBox>
 
@@ -29,13 +29,13 @@
                 <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
                 <HBox alignment="CENTER_LEFT" spacing="8">
                     <Label text="🏛" style="-fx-font-size:16;"/>
-                    <Label text="Total Net Worth" styleClass="card-label"/>
+                    <Label text="Kekayaan Bersih" styleClass="card-label"/>
                 </HBox>
                 <Label fx:id="netWorthLabel" text="Rp 0" styleClass="stat-large"/>
                 <Label fx:id="netWorthChange" text="+0.0% dari bulan lalu" styleClass="stat-change-positive"/>
                 <HBox spacing="16">
                     <VBox spacing="4" HBox.hgrow="ALWAYS">
-                        <Label text="LIQUID ASSETS" styleClass="mini-label"/>
+                        <Label text="ASET LIKUID" styleClass="mini-label"/>
                         <Label fx:id="liquidAssetsLabel" text="Rp 0" styleClass="mini-value"/>
                     </VBox>
                     <VBox spacing="4" HBox.hgrow="ALWAYS">
@@ -75,15 +75,15 @@
             <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="16" prefWidth="500">
                 <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
                 <HBox alignment="CENTER_LEFT">
-                    <Label text="Income vs Expense Trends" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Label text="Tren Pemasukan vs Pengeluaran" styleClass="card-title" HBox.hgrow="ALWAYS"/>
                     <HBox spacing="16" alignment="CENTER">
                         <HBox spacing="4" alignment="CENTER">
                             <Label text="■" style="-fx-text-fill:#C87941; -fx-font-size:14;"/>
-                            <Label text="INCOME" styleClass="legend-label"/>
+                            <Label text="PEMASUKAN" styleClass="legend-label"/>
                         </HBox>
                         <HBox spacing="4" alignment="CENTER">
                             <Label text="■" style="-fx-text-fill:#E8DDD0; -fx-font-size:14;"/>
-                            <Label text="EXPENSE" styleClass="legend-label"/>
+                            <Label text="PENGELUARAN" styleClass="legend-label"/>
                         </HBox>
                     </HBox>
                 </HBox>
@@ -95,7 +95,7 @@
                 <padding><Insets top="24" left="20" bottom="24" right="20"/></padding>
                 <HBox alignment="CENTER_LEFT" spacing="6">
                     <Label text="⏱" style="-fx-font-size:14;"/>
-                    <Label text="Daily Burn Rate" styleClass="card-title"/>
+                    <Label text="Laju Harian" styleClass="card-title"/>
                 </HBox>
                 <Pane fx:id="burnRatePane" prefHeight="140" prefWidth="140" maxWidth="160"/>
                 <Label fx:id="burnRateDesc" text="Memuat..." styleClass="mini-label" wrapText="true" textAlignment="CENTER"/>
@@ -105,7 +105,7 @@
             <VBox styleClass="card" prefWidth="230" spacing="12">
                 <padding><Insets top="24" left="20" bottom="24" right="20"/></padding>
                 <HBox alignment="CENTER_LEFT">
-                    <Label text="Active Budgets" styleClass="card-title" HBox.hgrow="ALWAYS"/>
+                    <Label text="Anggaran Aktif" styleClass="card-title" HBox.hgrow="ALWAYS"/>
                     <Button text="LIHAT SEMUA" styleClass="btn-ghost" onAction="#openBudgets"/>
                 </HBox>
                 <VBox fx:id="budgetMiniList" spacing="10"/>
@@ -114,16 +114,25 @@
 
         <!-- Bottom: Strategy + Recent Ledger -->
         <HBox spacing="16">
-            <VBox styleClass="card-muted" HBox.hgrow="ALWAYS" spacing="12">
+            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12" prefWidth="480">
                 <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
-                <Label text="INVESTMENT STRATEGY" styleClass="page-eyebrow"/>
+                <HBox alignment="CENTER_LEFT">
+                    <VBox spacing="4" HBox.hgrow="ALWAYS">
+                        <Label text="STRATEGI KEUANGAN" styleClass="page-eyebrow"/>
+                        <Label text="Portofolio Aset Saham" styleClass="card-title"/>
+                    </VBox>
+                    <ComboBox fx:id="stockCombo" promptText="Pilih Saham" styleClass="combo-field" prefWidth="150" />
+                </HBox>
+                
+                <Label fx:id="stockStatusLabel" text="Belum ada saham terdaftar." styleClass="mini-label" />
+                <Pane fx:id="stockChartPane" prefHeight="130" styleClass="chart-pane" />
+
                 <Label fx:id="investmentStrategyLabel"
                        text="Menganalisis portofoliomu..." styleClass="body-text" wrapText="true"/>
-                <Label text="Rebalance Insights" styleClass="link-label"/>
             </VBox>
             <VBox styleClass="card-muted" HBox.hgrow="ALWAYS" spacing="12">
                 <padding><Insets top="20" left="20" bottom="20" right="20"/></padding>
-                <Label text="RECENT LEDGER" styleClass="page-eyebrow"/>
+                <Label text="CATATAN TERKINI" styleClass="page-eyebrow"/>
                 <VBox fx:id="recentLedgerList" spacing="8"/>
             </VBox>
         </HBox>

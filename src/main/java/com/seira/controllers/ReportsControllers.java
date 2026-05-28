@@ -3,6 +3,7 @@ package com.seira.controllers;
 import com.seira.dao.DAOFactory;
 import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
+import com.seira.utils.Toast;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -12,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.scene.text.TextAlignment;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;
@@ -61,7 +63,7 @@ public class ReportsControllers {
         List<double[]> trend = DAOFactory.getReportDAO().getNetWorthTrend(userId, monthsToShow);
         if (trend.isEmpty()) {
             gc.setFill(Color.web("#8B7355"));
-            gc.fillText("No data available. Add transactions to see your trend.", 20, h / 2);
+            gc.fillText("Belum ada data. Tambahkan transaksi untuk melihat trenmu.", 20, h / 2);
             netWorthChartPane.getChildren().add(canvas);
             return;
         }
@@ -125,9 +127,10 @@ public class ReportsControllers {
         for (int i = 1; i < n; i++) {
             if (trend.get(i)[0] > peakVal) { peakVal = trend.get(i)[0]; peakIdx = i; }
         }
+        gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.web("#2C1A0E"));
         gc.setFont(Font.font("System", FontWeight.BOLD, 11));
-        gc.fillText(FormatUtil.formatCurrency(peakVal), xs[peakIdx] - 20, ys[peakIdx] - 8);
+        gc.fillText(FormatUtil.formatCurrency(peakVal), xs[peakIdx], ys[peakIdx] - 10);
 
         // Month labels
         gc.setFont(Font.font("System", 10));
@@ -135,8 +138,8 @@ public class ReportsControllers {
         int labelEvery = Math.max(1, n / 6);
         for (int i = 0; i < n; i += labelEvery) {
             String label = YearMonth.now().minusMonths(n - 1 - i)
-                    .getMonth().getDisplayName(TextStyle.SHORT, Locale.US);
-            gc.fillText(label, xs[i] - 8, h - 6);
+                    .getMonth().getDisplayName(TextStyle.SHORT, new Locale("id", "ID"));
+            gc.fillText(label, xs[i], h - 6);
         }
 
         netWorthChartPane.getChildren().add(canvas);
@@ -176,13 +179,21 @@ public class ReportsControllers {
         }
 
         // Center label
+        gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.web("#2C1A0E"));
-        gc.setFont(Font.font("System", FontWeight.NORMAL, size * 0.08));
+        gc.setFont(Font.font("System", FontWeight.NORMAL, size * 0.07));
         String totalLabel = "TOTAL";
-        gc.fillText(totalLabel, cx - gc.getFont().getSize() * 1.2, cy - size * 0.04);
-        gc.setFont(Font.font("System", FontWeight.BOLD, size * 0.12));
-        String totalAmt = FormatUtil.formatShort(total);
-        gc.fillText(totalAmt, cx - totalAmt.length() * size * 0.065, cy + size * 0.1);
+        gc.fillText(totalLabel, cx, cy - size * 0.04);
+
+        String totalAmt = FormatUtil.formatCurrency(total);
+        double fontSize = size * 0.105; // 21pt for size=200
+        if (totalAmt.length() > 12) {
+            fontSize = size * 0.075; // 15pt for large numbers (e.g. Rp 10.000.000)
+        } else if (totalAmt.length() > 9) {
+            fontSize = size * 0.085; // 17pt (e.g. Rp 100.000)
+        }
+        gc.setFont(Font.font("System", FontWeight.BOLD, fontSize));
+        gc.fillText(totalAmt, cx, cy + size * 0.08);
 
         donutChartPane.getChildren().add(canvas);
         totalSpendingLabel.setText(FormatUtil.formatCurrency(total));
@@ -201,8 +212,7 @@ public class ReportsControllers {
             dot.setStyle("-fx-text-fill: " + (color != null ? color : "#C87941") + "; -fx-font-size: 14;");
             Label nameLbl = new Label(name);
             nameLbl.getStyleClass().add("legend-name");
-            nameLbl.setMaxWidth(120);
-            javafx.scene.layout.HBox.setHgrow(nameLbl, Priority.ALWAYS);
+            HBox.setHgrow(nameLbl, Priority.ALWAYS);
             Label valLbl = new Label(FormatUtil.formatCurrency(val));
             valLbl.getStyleClass().add("legend-value");
             row.getChildren().addAll(dot, nameLbl, valLbl);
@@ -220,11 +230,11 @@ public class ReportsControllers {
             double savingsRate = income > 0 ? savings / income * 100 : 0;
             boolean surplus = savings >= 0;
 
-            HBox row = new HBox(0);
+            HBox row = new HBox(16);
             row.getStyleClass().add("breakdown-row");
             row.setPadding(new javafx.geometry.Insets(14, 20, 14, 20));
 
-            Label monthLbl = new Label(ym.getMonth().getDisplayName(TextStyle.FULL, Locale.US));
+            Label monthLbl = new Label(ym.getMonth().getDisplayName(TextStyle.FULL, new Locale("id", "ID")));
             monthLbl.getStyleClass().add("breakdown-month");
             monthLbl.setPrefWidth(120);
 
@@ -238,9 +248,9 @@ public class ReportsControllers {
 
             Label rateLbl = new Label(String.format("%.1f%%", savingsRate));
             rateLbl.getStyleClass().add(surplus ? "savings-positive" : "savings-negative");
-            rateLbl.setPrefWidth(100);
+            rateLbl.setPrefWidth(120);
 
-            Label statusLbl = new Label(surplus ? "SURPLUS" : "DEFICIT");
+            Label statusLbl = new Label(surplus ? "SURPLUS" : "DEFISIT");
             statusLbl.getStyleClass().add(surplus ? "badge-surplus" : "badge-deficit");
 
             row.getChildren().addAll(monthLbl, inLbl, outLbl, rateLbl, statusLbl);
@@ -252,23 +262,24 @@ public class ReportsControllers {
     private void exportCsv() {
         // Reuse CSV logic stub
         javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
-        fc.setTitle("Export Report");
+        fc.setTitle("Ekspor Laporan");
         fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("CSV", "*.csv"));
-        fc.setInitialFileName("seira_report.csv");
+        fc.setInitialFileName("seira_laporan.csv");
         java.io.File file = fc.showSaveDialog(monthlyBreakdownList.getScene().getWindow());
         if (file == null) return;
         try (java.io.PrintWriter pw = new java.io.PrintWriter(file)) {
-            pw.println("Month,Inflow,Outflow,Savings Rate,Status");
+            pw.println("Bulan,Pemasukan,Pengeluaran,Rasio Tabungan,Status");
             for (int i = 2; i >= 0; i--) {
                 YearMonth ym = YearMonth.now().minusMonths(i);
                 double inc = DAOFactory.getReportDAO().getTotalIncome(userId, ym);
                 double exp = DAOFactory.getReportDAO().getTotalExpense(userId, ym);
                 double rate = inc > 0 ? (inc - exp) / inc * 100 : 0;
                 pw.printf("%s,%.2f,%.2f,%.1f%%,%s%n",
-                        ym, inc, exp, rate, inc >= exp ? "SURPLUS" : "DEFICIT");
+                        ym, inc, exp, rate, inc >= exp ? "SURPLUS" : "DEFISIT");
             }
+            Toast.showSuccess("Berhasil diekspor ke: " + file.getName() + " ✓");
         } catch (Exception e) {
-            new Alert(Alert.AlertType.ERROR, "Export failed: " + e.getMessage()).showAndWait();
+            Toast.showError("Gagal ekspor: " + e.getMessage());
         }
     }
 }

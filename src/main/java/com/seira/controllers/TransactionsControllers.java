@@ -4,6 +4,7 @@ import com.seira.dao.DAOFactory;
 import com.seira.models.Transaction;
 import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
+import com.seira.utils.Toast;
 import com.opencsv.CSVWriter;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -70,7 +71,7 @@ public class TransactionsControllers {
     }
 
     private HBox buildTransactionRow(Transaction t) {
-        HBox row = new HBox(0);
+        HBox row = new HBox(16);
         row.getStyleClass().add("tx-row");
         row.setAlignment(Pos.CENTER_LEFT);
         row.setPadding(new Insets(13, 20, 13, 20));
@@ -137,8 +138,9 @@ public class TransactionsControllers {
                     t.setAmount(new BigDecimal(amtField.getText().trim()));
                     DAOFactory.getTransactionDAO().update(t);
                     loadTransactions();
+                    Toast.showSuccess("Transaksi berhasil diperbarui ✓");
                 } catch (Exception ex) {
-                    showAlert("Jumlah tidak valid.");
+                    Toast.showError("Jumlah tidak valid.");
                 }
             }
         });
@@ -153,6 +155,7 @@ public class TransactionsControllers {
             if (bt == ButtonType.OK) {
                 DAOFactory.getTransactionDAO().delete(t.getId());
                 loadTransactions();
+                Toast.showSuccess("Transaksi berhasil dihapus ✓");
             }
         });
     }
@@ -209,9 +212,9 @@ public class TransactionsControllers {
                         t.getNotes() != null ? t.getNotes() : ""
                 });
             }
-            showAlert("Berhasil diekspor ke: " + file.getName());
+            Toast.showSuccess("Berhasil diekspor ke: " + file.getName() + " ✓");
         } catch (Exception e) {
-            showAlert("Gagal ekspor: " + e.getMessage());
+            Toast.showError("Gagal ekspor: " + e.getMessage());
         }
     }
 

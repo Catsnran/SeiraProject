@@ -20,19 +20,19 @@
 
         <!-- Nav items -->
         <VBox fx:id="navContainer" spacing="4">
-            <Button fx:id="navDashboard" maxWidth="Infinity" onAction="#navDashboard" styleClass="nav-item" text="Dashboard" userData="dashboard">
+            <Button fx:id="navDashboard" maxWidth="Infinity" onAction="#navDashboard" styleClass="nav-item" text="Dasbor" userData="dashboard">
                 <graphic><Label styleClass="nav-icon" text="⊞" /></graphic>
             </Button>
-            <Button fx:id="navTransactions" maxWidth="Infinity" onAction="#navTransactions" styleClass="nav-item" text="Transactions" userData="transactions">
+            <Button fx:id="navTransactions" maxWidth="Infinity" onAction="#navTransactions" styleClass="nav-item" text="Transaksi" userData="transactions">
                 <graphic><Label styleClass="nav-icon" text="⇄" /></graphic>
             </Button>
-            <Button fx:id="navBudget" maxWidth="Infinity" onAction="#navBudget" styleClass="nav-item" text="Budget" userData="budget">
+            <Button fx:id="navBudget" maxWidth="Infinity" onAction="#navBudget" styleClass="nav-item" text="Anggaran" userData="budget">
                 <graphic><Label styleClass="nav-icon" text="▤" /></graphic>
             </Button>
-            <Button fx:id="navReports" maxWidth="Infinity" onAction="#navReports" styleClass="nav-item" text="Reports" userData="reports">
+            <Button fx:id="navReports" maxWidth="Infinity" onAction="#navReports" styleClass="nav-item" text="Laporan" userData="reports">
                 <graphic><Label styleClass="nav-icon" text="↗" /></graphic>
             </Button>
-            <Button fx:id="navAccounts" maxWidth="Infinity" onAction="#navAccounts" styleClass="nav-item" text="Accounts" userData="accounts">
+            <Button fx:id="navAccounts" maxWidth="Infinity" onAction="#navAccounts" styleClass="nav-item" text="Akun" userData="accounts">
                 <graphic><Label styleClass="nav-icon" text="⌂" /></graphic>
             </Button>
         </VBox>
@@ -40,15 +40,15 @@
         <Region VBox.vgrow="ALWAYS" />
 
         <!-- Add Transaction -->
-        <Button maxWidth="Infinity" onAction="#openAddTransaction" styleClass="btn-add-transaction" text="+ Add Transaction" />
+        <Button maxWidth="Infinity" onAction="#openAddTransaction" styleClass="btn-add-transaction" text="+ Tambah Transaksi" />
 
         <Region prefHeight="16" />
 
         <!-- Bottom nav -->
         <VBox spacing="4">
-            <Button maxWidth="Infinity" onAction="#openSettings" styleClass="nav-item-bottom" text="⚙  Settings" />
-            <Button maxWidth="Infinity" onAction="#openSupport" styleClass="nav-item-bottom" text="?  Support" />
-            <Button layoutX="10.0" layoutY="39.0" maxWidth="Infinity" onAction="#navLogout" styleClass="nav-item-bottom" text="Logout" />
+            <Button maxWidth="Infinity" onAction="#openSettings" styleClass="nav-item-bottom" text="⚙  Pengaturan" />
+            <Button maxWidth="Infinity" onAction="#openSupport" styleClass="nav-item-bottom" text="?  Bantuan" />
+            <Button maxWidth="Infinity" onAction="#navLogout" styleClass="nav-item-bottom" text="Keluar" />
         </VBox>
     </VBox>
 
@@ -57,7 +57,7 @@
         <!-- Top bar -->
         <HBox alignment="CENTER_LEFT" styleClass="top-bar">
             <padding><Insets bottom="14" left="32" right="32" top="14" /></padding>
-            <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefWidth="380" promptText="Search transactions, tags, or merchants..." styleClass="search-field" HBox.hgrow="ALWAYS" />
+            <TextField fx:id="searchField" onKeyReleased="#handleSearch" prefWidth="380" promptText="Cari transaksi, tag, atau merchant..." styleClass="search-field" HBox.hgrow="ALWAYS" />
             <Region HBox.hgrow="ALWAYS" />
             <HBox alignment="CENTER" spacing="12">
                 <Label styleClass="top-icon" text="🔔" />

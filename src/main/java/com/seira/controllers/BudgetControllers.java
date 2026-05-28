@@ -6,6 +6,7 @@ import com.seira.models.Category;
 import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
 import com.seira.utils.StyledDialog;
+import com.seira.utils.Toast;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -99,8 +100,8 @@ public class BudgetControllers {
         card.setPadding(new Insets(16, 20, 16, 20));
         card.setStyle(
                 "-fx-background-color: #FDFAF5; -fx-background-radius: 12; " +
-                        "-fx-border-color: " + accentColor + " #E8DDD0 #E8DDD0 #E8DDD0; " +
-                        "-fx-border-width: 0 0 0 4; -fx-border-radius: 0 12 12 0; " +
+                        "-fx-border-color: #E8DDD0; " +
+                        "-fx-border-width: 1; -fx-border-radius: 12; " +
                         "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 6, 0, 0, 2);"
         );
 
@@ -179,7 +180,11 @@ public class BudgetControllers {
                 "-fx-padding: 4 10; -fx-background-radius: 5; -fx-border-color: #E8C5C0; -fx-border-width: 1; " +
                 "-fx-border-radius: 5; -fx-cursor: hand;");
         editBtn.setOnAction(e -> showEditBudgetDialog(b));
-        delBtn.setOnAction(e -> { DAOFactory.getBudgetDAO().delete(b.getId()); loadData(); });
+        delBtn.setOnAction(e -> {
+            DAOFactory.getBudgetDAO().delete(b.getId());
+            loadData();
+            Toast.showSuccess("Anggaran berhasil dihapus ✓");
+        });
         bottomRow.getChildren().addAll(remainLbl, editBtn, delBtn);
 
         card.getChildren().addAll(topRow, amtRow, pb, bottomRow);
@@ -250,6 +255,7 @@ public class BudgetControllers {
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
                         loadData();
+                        Toast.showSuccess("Anggaran berhasil disimpan ✓");
                     } catch (NumberFormatException e) {
                         StyledDialog.showError(errLbl, "Jumlah anggaran tidak valid.");
                     }
@@ -287,6 +293,7 @@ public class BudgetControllers {
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
                         loadData();
+                        Toast.showSuccess("Anggaran berhasil diperbarui ✓");
                     } catch (NumberFormatException e) {
                         StyledDialog.showError(errLbl, "Jumlah tidak valid.");
                     }

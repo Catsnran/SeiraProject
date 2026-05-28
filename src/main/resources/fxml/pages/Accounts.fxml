@@ -40,7 +40,9 @@
         </HBox>
 
         <!-- Account Cards -->
-        <Label text="Sumber Dana" styleClass="card-title"/>
+        <Label text="Sumber Dana" styleClass="card-title">
+            <VBox.margin><Insets top="8"/></VBox.margin>
+        </Label>
         <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" prefHeight="220" styleClass="cards-scroll">
             <HBox fx:id="accountCardsBox" spacing="16" alignment="CENTER_LEFT">
                 <padding><Insets top="4" bottom="12"/></padding>
@@ -56,12 +58,12 @@
             </HBox>
 
             <!-- Column headers -->
-            <HBox styleClass="table-header">
+            <HBox spacing="16" styleClass="table-header">
                 <padding><Insets top="10" left="20" bottom="10" right="20"/></padding>
                 <Label text="" prefWidth="36"/>
                 <Label text="AKUN" styleClass="col-header" HBox.hgrow="ALWAYS"/>
                 <Label text="STATUS" styleClass="col-header" prefWidth="100"/>
-                <Label text="LAST SYNC" styleClass="col-header" prefWidth="130"/>
+                <Label text="SINKRONISASI TERAKHIR" styleClass="col-header" prefWidth="130"/>
                 <Label text="SALDO" styleClass="col-header" prefWidth="160"/>
             </HBox>
 

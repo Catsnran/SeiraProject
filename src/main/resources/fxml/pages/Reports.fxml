@@ -15,7 +15,7 @@
                 <Label styleClass="page-title" text="Laporan &amp; Analisis" />
                 <Label styleClass="page-subtitle" text="Evaluasi keuangan jangka panjang dan analisis mendalam." />
             </VBox>
-            <Button onAction="#exportCsv" styleClass="btn-outline" text="⬇ Export CSV" />
+            <Button onAction="#exportCsv" styleClass="btn-outline" text="⬇ Ekspor CSV" />
         </HBox>
 
         <!-- Top row: Net Worth Trend + Spending by Category -->
@@ -25,7 +25,7 @@
                 <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
                 <HBox alignment="CENTER_LEFT">
                     <VBox spacing="2" HBox.hgrow="ALWAYS">
-                        <Label styleClass="page-eyebrow" text="FISCAL TRAJECTORY" />
+                        <Label styleClass="page-eyebrow" text="PERJALANAN KEUANGAN" />
                         <Label styleClass="card-title" text="Tren Kekayaan Bersih" />
                     </VBox>
                     <HBox spacing="8">
@@ -41,7 +41,7 @@
                 <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
                 <Label styleClass="card-title" text="Pengeluaran per Kategori" />
                 <Pane fx:id="donutChartPane" maxWidth="200" prefHeight="200" prefWidth="200" />
-                <Label fx:id="totalSpendingLabel" alignment="CENTER" styleClass="mini-label" text="Rp 0" />
+                <Label fx:id="totalSpendingLabel" alignment="CENTER" styleClass="mini-label" text="Rp 0" visible="false" managed="false" />
                 <VBox fx:id="donutLegend" spacing="10" />
             </VBox>
         </HBox>
@@ -51,16 +51,16 @@
             <HBox alignment="CENTER_LEFT" styleClass="ledger-header">
                 <padding><Insets bottom="16" left="20" right="20" top="16" /></padding>
                 <Label styleClass="card-title" text="Rincian Komparatif Bulanan" HBox.hgrow="ALWAYS" />
-                <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Export CSV" />
+                <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Ekspor CSV" />
             </HBox>
 
             <!-- Column headers -->
-            <HBox styleClass="table-header">
+            <HBox spacing="16" styleClass="table-header">
                 <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
                 <Label prefWidth="120" styleClass="col-header" text="BULAN" />
                 <Label prefWidth="140" styleClass="col-header" text="PEMASUKAN" />
                 <Label prefWidth="140" styleClass="col-header" text="PENGELUARAN" />
-                <Label prefHeight="17.0" prefWidth="124.0" styleClass="col-header" text="TINGKAT TABUNGAN" />
+                <Label prefWidth="120" styleClass="col-header" text="TINGKAT TABUNGAN" />
                 <Label prefWidth="100" styleClass="col-header" text="STATUS" />
             </HBox>
 

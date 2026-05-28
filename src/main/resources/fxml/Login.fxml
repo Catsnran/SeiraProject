@@ -60,12 +60,10 @@
             </VBox>
 
             <VBox spacing="6">
-                <HBox>
-                    <Label styleClass="field-label" text="PASSWORD" HBox.hgrow="ALWAYS" />
-                    <Label styleClass="forgot-link" text="Forgot password?">
-                        <HBox.margin>
-                            <Insets left="194.0" />
-                        </HBox.margin></Label>
+                <HBox alignment="CENTER_LEFT">
+                    <Label styleClass="field-label" text="PASSWORD" />
+                    <Region HBox.hgrow="ALWAYS" />
+                    <Label styleClass="forgot-link" text="Forgot password?" />
                 </HBox>
                 <PasswordField fx:id="passwordField" promptText="••••••••" styleClass="login-field" />
             </VBox>

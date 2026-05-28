@@ -28,20 +28,17 @@
         <VBox spacing="0" styleClass="card" VBox.vgrow="ALWAYS">
             <HBox alignment="CENTER_LEFT" styleClass="ledger-header">
                 <padding><Insets bottom="14" left="20" right="20" top="14" /></padding>
-                <Label prefHeight="17.0" prefWidth="536.0" styleClass="card-title" text="The Ledger" HBox.hgrow="ALWAYS">
-                    <opaqueInsets>
-                        <Insets />
-                    </opaqueInsets></Label>
-                <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Export CSV" />
+                <Label styleClass="card-title" text="Buku Besar" HBox.hgrow="ALWAYS" />
+                <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Ekspor CSV" />
             </HBox>
 
             <!-- Column headers -->
-            <HBox prefHeight="37.0" prefWidth="645.0" styleClass="table-header">
+            <HBox spacing="16" styleClass="table-header">
                 <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
-                <Label prefHeight="17.0" prefWidth="145.0" styleClass="col-header" text="TANGGAL" />
-                <Label prefHeight="17.0" prefWidth="259.0" styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
-                <Label prefHeight="17.0" prefWidth="200.0" styleClass="col-header" text="KATEGORI" />
-                <Label prefHeight="17.0" prefWidth="77.0" styleClass="col-header" text="JUMLAH" />
+                <Label prefWidth="100" styleClass="col-header" text="TANGGAL" />
+                <Label styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
+                <Label prefWidth="120" styleClass="col-header" text="KATEGORI" />
+                <Label prefWidth="150" styleClass="col-header" text="JUMLAH" />
                 <Label prefWidth="70" text="" />
             </HBox>
 
@@ -59,18 +56,18 @@
     <!-- Wealth Narrative sidebar -->
     <VBox prefWidth="240" spacing="0">
         <padding><Insets bottom="32" left="0" right="24" top="32" /></padding>
-        <VBox prefHeight="539.0" prefWidth="140.0" spacing="16" styleClass="card-accent" VBox.vgrow="ALWAYS">
+        <VBox spacing="16" styleClass="card-accent" VBox.vgrow="ALWAYS">
             <padding><Insets bottom="24" left="20" right="20" top="24" /></padding>
             <HBox alignment="CENTER_LEFT" spacing="6">
                 <Label styleClass="accent-icon" text="✦" />
                 <Label styleClass="accent-icon-sm" text="✦" />
             </HBox>
-            <Label styleClass="narrative-title" text="Wealth Narrative" />
+            <Label styleClass="narrative-title" text="Narasi Keuangan" />
             <Label fx:id="narrativeText" styleClass="narrative-body" text="Mulai tambahkan transaksi untuk melihat narasi keuanganmu." wrapText="true" />
             <Region VBox.vgrow="ALWAYS" />
             <HBox>
-                <Label styleClass="curated-label" text="CURATED INSIGHT" HBox.hgrow="ALWAYS" />
-                <Label styleClass="link-accent" text="Deep Dive" />
+                <Label styleClass="curated-label" text="WAWASAN TERKURASI" HBox.hgrow="ALWAYS" />
+                <Label styleClass="link-accent" text="Selengkapnya" />
             </HBox>
         </VBox>
     </VBox>

@@ -5,6 +5,7 @@ import com.seira.models.Category;
 import com.seira.models.PaymentMethod;
 import com.seira.models.Transaction;
 import com.seira.utils.SessionManager;
+import com.seira.utils.Toast;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -211,7 +212,10 @@ public class AddTransactionControllers {
 
             boolean ok1 = DAOFactory.getTransactionDAO().add(out);
             boolean ok2 = DAOFactory.getTransactionDAO().add(in);
-            if (ok1 && ok2) navigateBack();
+            if (ok1 && ok2) {
+                Toast.showSuccess("Transfer berhasil disimpan ✓");
+                navigateBack();
+            }
             else showError("Gagal menyimpan transfer.");
             return;
         }
@@ -234,7 +238,14 @@ public class AddTransactionControllers {
         t.setNotes(notesArea.getText().trim());
 
         boolean ok = editTarget != null ? DAOFactory.getTransactionDAO().update(t) : DAOFactory.getTransactionDAO().add(t);
-        if (ok) navigateBack();
+        if (ok) {
+            if (editTarget != null) {
+                Toast.showSuccess("Transaksi berhasil diperbarui ✓");
+            } else {
+                Toast.showSuccess("Transaksi berhasil disimpan ✓");
+            }
+            navigateBack();
+        }
         else showError("Gagal menyimpan transaksi.");
     }
 

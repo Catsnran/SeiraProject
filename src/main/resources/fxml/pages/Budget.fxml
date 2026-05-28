@@ -15,11 +15,10 @@
                 <Label styleClass="page-title" text="Budget Curator" />
                 <Label styleClass="page-subtitle" text="Narasi pertumbuhan finansialmu melalui alokasi yang terencana." />
             </VBox>
-            <Button onAction="#openPreviousCycles" styleClass="btn-outline" text="⏮ Siklus Sebelumnya">
-            <HBox.margin>
-               <Insets right="10.0" />
-            </HBox.margin></Button>
-         <Button layoutX="344.0" layoutY="17.0" onAction="#openNextCycles" styleClass="btn-outline" text="Siklus Setelahnya ⏭" />
+            <HBox spacing="10" alignment="CENTER">
+                <Button onAction="#openPreviousCycles" styleClass="btn-outline" text="⏮ Siklus Sebelumnya" />
+                <Button onAction="#openNextCycles" styleClass="btn-outline" text="Siklus Setelahnya ⏭" />
+            </HBox>
         </HBox>
 
         <!-- Main layout: Left panel + Right envelopes -->
@@ -34,8 +33,8 @@
                     <HBox alignment="CENTER_LEFT" spacing="12">
                         <Label style="-fx-font-size: 28;" text="🐷" />
                         <VBox spacing="2">
-                            <Label styleClass="reservoir-title" text="Wealth" />
-                            <Label styleClass="reservoir-title" text="Reservoir" />
+                            <Label styleClass="reservoir-title" text="Cadangan" />
+                            <Label styleClass="reservoir-title" text="Dana" />
                         </VBox>
                     </HBox>
                     <VBox spacing="4">
@@ -66,7 +65,7 @@
             <!-- Right: Category Envelopes -->
             <VBox spacing="12" HBox.hgrow="ALWAYS">
                 <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label styleClass="card-title" text="Category Envelopes" HBox.hgrow="ALWAYS" />
+                    <Label styleClass="card-title" text="Amplop Kategori" HBox.hgrow="ALWAYS" />
                 </HBox>
                 <VBox fx:id="categoryEnvelopesList" spacing="12" />
             </VBox>

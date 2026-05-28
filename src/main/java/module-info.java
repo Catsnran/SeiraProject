@@ -8,6 +8,8 @@ module org.seira {
     requires java.sql;
     requires jbcrypt;
     requires com.opencsv;
+    requires java.net.http;
+    requires com.google.gson;
 
     opens com.seira to javafx.fxml;
     exports com.seira;

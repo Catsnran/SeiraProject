@@ -90,6 +90,17 @@ public class DatabaseManager {
                 FOREIGN KEY (user_id)     REFERENCES users(id),
                 FOREIGN KEY (category_id) REFERENCES categories(id)
             )
+            """,
+                """
+            CREATE TABLE IF NOT EXISTS stock_assets (
+                id           INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id      INTEGER NOT NULL,
+                stock_symbol TEXT NOT NULL,
+                stock_name   TEXT NOT NULL,
+                total_lot    INTEGER NOT NULL,
+                created_at   TEXT DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
             """
         };
         Statement stmt = DBConnection.getInstance().getConnection().createStatement();

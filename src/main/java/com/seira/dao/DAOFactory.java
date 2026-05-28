@@ -20,6 +20,7 @@ public class DAOFactory {
     private static final PaymentMethodDAO paymentMethodDAO = new PaymentMethodDAO();
     private static final BudgetDAO        budgetDAO        = new BudgetDAO();
     private static final ReportDAO        reportDAO        = new ReportDAO();
+    private static final StockAssetDAO    stockAssetDAO    = new StockAssetDAO();
 
     public static IUserDAO          getUserDAO()          { return userDAO; }
     public static ITransactionDAO   getTransactionDAO()   { return transactionDAO; }
@@ -27,4 +28,5 @@ public class DAOFactory {
     public static IPaymentMethodDAO getPaymentMethodDAO() { return paymentMethodDAO; }
     public static IBudgetDAO        getBudgetDAO()        { return budgetDAO; }
     public static IReportDAO        getReportDAO()        { return reportDAO; }
+    public static IStockAssetDAO    getStockAssetDAO()    { return stockAssetDAO; }
 }

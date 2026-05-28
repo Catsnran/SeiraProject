@@ -24,23 +24,40 @@ import java.util.Locale;
 
 public class DashboardControllers {
 
-    @FXML private Label netWorthLabel;
-    @FXML private Label netWorthChange;
-    @FXML private Label liquidAssetsLabel;
-    @FXML private Label investmentsLabel;
-    @FXML private Label monthlyIncomeLabel;
-    @FXML private Label monthlyExpenseLabel;
-    @FXML private ProgressBar incomeProgress;
-    @FXML private ProgressBar expenseProgress;
-    @FXML private Label incomeProgressLabel;
-    @FXML private Label expenseChangeLabel;
-    @FXML private Label burnLabel;
-    @FXML private Pane trendChartPane;
-    @FXML private Pane burnRatePane;
-    @FXML private Label burnRateDesc;
-    @FXML private VBox budgetMiniList;
-    @FXML private VBox recentLedgerList;
-    @FXML private Label investmentStrategyLabel;
+    @FXML
+    private Label netWorthLabel;
+    @FXML
+    private Label netWorthChange;
+    @FXML
+    private Label liquidAssetsLabel;
+    @FXML
+    private Label investmentsLabel;
+    @FXML
+    private Label monthlyIncomeLabel;
+    @FXML
+    private Label monthlyExpenseLabel;
+    @FXML
+    private ProgressBar incomeProgress;
+    @FXML
+    private ProgressBar expenseProgress;
+    @FXML
+    private Label incomeProgressLabel;
+    @FXML
+    private Label expenseChangeLabel;
+    @FXML
+    private Label burnLabel;
+    @FXML
+    private Pane trendChartPane;
+    @FXML
+    private Pane burnRatePane;
+    @FXML
+    private Label burnRateDesc;
+    @FXML
+    private VBox budgetMiniList;
+    @FXML
+    private VBox recentLedgerList;
+    @FXML
+    private Label investmentStrategyLabel;
 
     private int userId;
     private MainControllers mainController;
@@ -110,9 +127,11 @@ public class DashboardControllers {
         double diff = dailyBurn - prevDailyBurn;
 
         if (diff < 0) {
-            burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata kuartal.", FormatUtil.formatCurrency(Math.abs(diff))));
+            burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata kuartal.",
+                    FormatUtil.formatCurrency(Math.abs(diff))));
         } else {
-            burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari bulan lalu.", FormatUtil.formatCurrency(diff)));
+            burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari bulan lalu.",
+                    FormatUtil.formatCurrency(diff)));
         }
 
         // Draw charts after layout (bind to width)
@@ -133,20 +152,27 @@ public class DashboardControllers {
         // Strategy
         double savingsRate = income > 0 ? net / income * 100 : 0;
         if (income == 0) {
-            investmentStrategyLabel.setText("Tambahkan pemasukan dan pengeluaran pertamamu untuk mulai mendapatkan analisis strategi keuangan.");
+            investmentStrategyLabel.setText(
+                    "Tambahkan pemasukan dan pengeluaran pertamamu untuk mulai mendapatkan analisis strategi keuangan.");
         } else if (savingsRate > 20) {
-            investmentStrategyLabel.setText(String.format("Tingkat tabunganmu %.1f%% bulan ini — excellent! Pertimbangkan untuk mengalokasikan surplus ke instrumen investasi jangka panjang.", savingsRate));
+            investmentStrategyLabel.setText(String.format(
+                    "Tingkat tabunganmu %.1f%% bulan ini — excellent! Pertimbangkan untuk mengalokasikan surplus ke instrumen investasi jangka panjang.",
+                    savingsRate));
         } else if (savingsRate > 0) {
-            investmentStrategyLabel.setText(String.format("Tingkat tabunganmu %.1f%%. Tinjau pengeluaran terbesarmu untuk meningkatkan surplus.", savingsRate));
+            investmentStrategyLabel.setText(String.format(
+                    "Tingkat tabunganmu %.1f%%. Tinjau pengeluaran terbesarmu untuk meningkatkan surplus.",
+                    savingsRate));
         } else {
-            investmentStrategyLabel.setText("Pengeluaranmu melebihi pemasukan bulan ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
+            investmentStrategyLabel.setText(
+                    "Pengeluaranmu melebihi pemasukan bulan ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
         }
     }
 
     private void drawTrendChart(YearMonth now) {
         double w = trendChartPane.getWidth();
         double h = trendChartPane.getHeight();
-        if (w < 10 || h < 10) return;
+        if (w < 10 || h < 10)
+            return;
 
         trendChartPane.getChildren().clear();
         Canvas canvas = new Canvas(w, h);
@@ -154,7 +180,8 @@ public class DashboardControllers {
 
         List<double[]> trend = DAOFactory.getReportDAO().getMonthlyTrend(userId, 6);
         double maxVal = 1;
-        for (double[] d : trend) maxVal = Math.max(maxVal, Math.max(d[0], d[1]));
+        for (double[] d : trend)
+            maxVal = Math.max(maxVal, Math.max(d[0], d[1]));
 
         int n = trend.size();
         double slotW = (w - 40) / n;
@@ -188,9 +215,9 @@ public class DashboardControllers {
     private void drawBurnRateDonut(double dailyBurn, double pct) {
         double size = Math.min(
                 Math.max(burnRatePane.getWidth(), 100),
-                Math.max(burnRatePane.getHeight(), 100)
-        );
-        if (size < 40) size = 140;
+                Math.max(burnRatePane.getHeight(), 100));
+        if (size < 40)
+            size = 140;
 
         burnRatePane.getChildren().clear();
         Canvas canvas = new Canvas(size, size);
@@ -231,7 +258,8 @@ public class DashboardControllers {
         List<Budget> budgets = DAOFactory.getBudgetDAO().findAll(userId, now);
         int shown = 0;
         for (Budget b : budgets) {
-            if (shown >= 3) break;
+            if (shown >= 3)
+                break;
 
             VBox item = new VBox(5);
 
@@ -244,14 +272,16 @@ public class DashboardControllers {
             pctLbl.getStyleClass().add("budget-mini-pct");
             topRow.getChildren().addAll(name, pctLbl);
 
-            Label amtLbl = new Label(FormatUtil.formatCurrency(b.getSpent()) + " / " + FormatUtil.formatCurrency(b.getAmount()));
+            Label amtLbl = new Label(
+                    FormatUtil.formatCurrency(b.getSpent()) + " / " + FormatUtil.formatCurrency(b.getAmount()));
             amtLbl.getStyleClass().add("budget-mini-amt");
 
             ProgressBar pb = new ProgressBar(Math.min(b.getPercentage() / 100.0, 1.0));
             pb.setMaxWidth(Double.MAX_VALUE);
             pb.getStyleClass().clear();
             pb.getStyleClass().add("progress-bar");
-            pb.getStyleClass().add(b.getPercentage() > 100 ? "progress-red" : b.getPercentage() > 80 ? "progress-yellow" : "progress-green");
+            pb.getStyleClass().add(b.getPercentage() > 100 ? "progress-red"
+                    : b.getPercentage() > 80 ? "progress-yellow" : "progress-green");
 
             item.getChildren().addAll(topRow, amtLbl, pb);
             budgetMiniList.getChildren().add(item);
@@ -269,7 +299,8 @@ public class DashboardControllers {
         List<Transaction> txs = DAOFactory.getTransactionDAO().findAll(userId, null, null, null, null);
         int shown = 0;
         for (Transaction t : txs) {
-            if (shown >= 3) break;
+            if (shown >= 3)
+                break;
 
             HBox row = new HBox(8);
             row.getStyleClass().add("ledger-row");
@@ -301,7 +332,8 @@ public class DashboardControllers {
     }
 
     private String getCategoryIcon(String cat) {
-        if (cat == null) return "📌";
+        if (cat == null)
+            return "📌";
         return switch (cat.toLowerCase()) {
             case "dining" -> "🍽";
             case "transport" -> "🚗";
@@ -314,20 +346,27 @@ public class DashboardControllers {
         };
     }
 
-    public void setMainController(MainControllers mc) { this.mainController = mc; }
+    public void setMainController(MainControllers mc) {
+        this.mainController = mc;
+    }
 
-    @FXML private void openMonthlyReview() {}
+    @FXML
+    private void openMonthlyReview() {
+    }
 
-    @FXML private void exportLedger() {
+    @FXML
+    private void exportLedger() {
         javafx.stage.FileChooser fc = new javafx.stage.FileChooser();
         fc.setTitle("Export Ledger");
         fc.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("CSV", "*.csv"));
         fc.setInitialFileName("seira_ledger.csv");
         java.io.File file = fc.showSaveDialog(netWorthLabel.getScene().getWindow());
-        if (file == null) return;
+        if (file == null)
+            return;
         try (java.io.PrintWriter pw = new java.io.PrintWriter(file)) {
             pw.println("Tanggal,Deskripsi,Kategori,Akun,Tipe,Jumlah");
-            java.util.List<com.seira.models.Transaction> txs = DAOFactory.getTransactionDAO().findAll(userId, null, null, null, null);
+            java.util.List<com.seira.models.Transaction> txs = DAOFactory.getTransactionDAO().findAll(userId, null,
+                    null, null, null);
             for (com.seira.models.Transaction t : txs) {
                 pw.printf("%s,%s,%s,%s,%s,%s%n",
                         t.getDate(), t.getDescription(),
@@ -341,7 +380,9 @@ public class DashboardControllers {
         }
     }
 
-    @FXML private void openBudgets() {
-        if (mainController != null) mainController.loadPage("budget");
+    @FXML
+    private void openBudgets() {
+        if (mainController != null)
+            mainController.loadPage("budget");
     }
 }
