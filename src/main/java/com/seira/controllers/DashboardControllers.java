@@ -3,24 +3,30 @@ package com.seira.controllers;
 import com.seira.dao.DAOFactory;
 import com.seira.models.Budget;
 import com.seira.models.Transaction;
+import com.seira.models.StockAsset;
 import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
+import com.seira.utils.YahooFinanceService;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ComboBox;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.application.Platform;
 
 import java.time.YearMonth;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.CompletableFuture;
+import java.math.BigDecimal;
 
 public class DashboardControllers {
 
@@ -58,6 +64,12 @@ public class DashboardControllers {
     private VBox recentLedgerList;
     @FXML
     private Label investmentStrategyLabel;
+    @FXML
+    private ComboBox<String> stockCombo;
+    @FXML
+    private Label stockStatusLabel;
+    @FXML
+    private Pane stockChartPane;
 
     private int userId;
     private MainControllers mainController;
@@ -166,6 +178,8 @@ public class DashboardControllers {
             investmentStrategyLabel.setText(
                     "Pengeluaranmu melebihi pemasukan bulan ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
         }
+        
+        loadStockData();
     }
 
     private void drawTrendChart(YearMonth now) {
@@ -384,5 +398,157 @@ public class DashboardControllers {
     private void openBudgets() {
         if (mainController != null)
             mainController.loadPage("budget");
+    }
+
+    private void loadStockData() {
+        List<StockAsset> stocks = DAOFactory.getStockAssetDAO().findAll(userId);
+        if (stocks.isEmpty()) {
+            stockCombo.setVisible(false);
+            stockCombo.setManaged(false);
+            stockStatusLabel.setText("Belum ada saham terdaftar. Tambah aset saham di menu Akun.");
+            stockChartPane.getChildren().clear();
+            return;
+        }
+
+        stockCombo.setVisible(true);
+        stockCombo.setManaged(true);
+        stockCombo.getItems().clear();
+        for (StockAsset sa : stocks) {
+            stockCombo.getItems().add(sa.getStockSymbol());
+        }
+
+        stockCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null) {
+                fetchAndDrawStock(newVal);
+            }
+        });
+
+        // Select first stock by default
+        stockCombo.setValue(stocks.get(0).getStockSymbol());
+    }
+
+    private void fetchAndDrawStock(String symbol) {
+        System.out.println("[DEBUG] fetchAndDrawStock called for: " + symbol);
+        stockStatusLabel.setText("Memuat data saham " + symbol + "...");
+        stockStatusLabel.setStyle("-fx-text-fill: #8B7355;");
+        
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return YahooFinanceService.getChartData(symbol);
+            } catch (Exception e) {
+                System.out.println("[DEBUG] Error fetching chart data: " + e.getMessage());
+                e.printStackTrace();
+                return null;
+            }
+        })
+            .thenAcceptAsync(data -> {
+                if (data == null) {
+                    stockStatusLabel.setText("Gagal koneksi API saham " + symbol + ".");
+                    return;
+                }
+                List<YahooFinanceService.StockPricePoint> prices = data.getPrices();
+                System.out.println("[DEBUG] prices size: " + (prices != null ? prices.size() : "null"));
+                
+                if (prices == null || prices.isEmpty()) {
+                    stockStatusLabel.setText("Gagal memuat data harga untuk " + symbol + ".");
+                    stockStatusLabel.setStyle("-fx-text-fill: #C0392B;");
+                    stockChartPane.getChildren().clear();
+                    return;
+                }
+
+                double latest = prices.get(prices.size() - 1).getPrice();
+                double first = prices.get(0).getPrice();
+                double pctChange = ((latest - first) / first) * 100;
+                
+                String changeText = String.format("%s — Rp %,.0f (%+.1f%% bulan ini)", 
+                    symbol, latest, pctChange);
+                stockStatusLabel.setText(changeText.replace(',', '.'));
+                if (pctChange >= 0) {
+                    stockStatusLabel.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold;");
+                } else {
+                    stockStatusLabel.setStyle("-fx-text-fill: #C0392B; -fx-font-weight: bold;");
+                }
+
+                // Add size listeners to redraw on resize
+                stockChartPane.widthProperty().addListener((obs, ov, nv) -> {
+                    System.out.println("[DEBUG] Width listener fired. New width: " + nv);
+                    drawStockLineChart(prices, pctChange >= 0);
+                });
+                stockChartPane.heightProperty().addListener((obs, ov, nv) -> {
+                    System.out.println("[DEBUG] Height listener fired. New height: " + nv);
+                    drawStockLineChart(prices, pctChange >= 0);
+                });
+                
+                drawStockLineChart(prices, pctChange >= 0);
+            }, Platform::runLater);
+    }
+
+    private void drawStockLineChart(List<YahooFinanceService.StockPricePoint> prices, boolean isPositive) {
+        double w = stockChartPane.getWidth();
+        double h = stockChartPane.getHeight();
+        System.out.println("[DEBUG] drawStockLineChart. Pane dimensions: " + w + "x" + h);
+        if (w < 10 || h < 10) return;
+
+        stockChartPane.getChildren().clear();
+        Canvas canvas = new Canvas(w, h);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        double minVal = Double.MAX_VALUE;
+        double maxVal = Double.MIN_VALUE;
+        for (YahooFinanceService.StockPricePoint p : prices) {
+            minVal = Math.min(minVal, p.getPrice());
+            maxVal = Math.max(maxVal, p.getPrice());
+        }
+
+        // Add 5% padding to top and bottom of chart values
+        double diff = maxVal - minVal;
+        if (diff == 0) diff = 1;
+        minVal = Math.max(0, minVal - diff * 0.05);
+        maxVal = maxVal + diff * 0.05;
+        diff = maxVal - minVal;
+
+        int n = prices.size();
+        if (n < 2) return;
+        double stepX = w / (n - 1);
+
+        // Path for fill
+        double[] xPoints = new double[n + 2];
+        double[] yPoints = new double[n + 2];
+
+        // Draw line and populate fill path
+        gc.setLineWidth(2.0);
+        gc.setStroke(isPositive ? Color.web("#27AE60") : Color.web("#C0392B"));
+        
+        gc.beginPath();
+        for (int i = 0; i < n; i++) {
+            double x = i * stepX;
+            double y = h - ((prices.get(i).getPrice() - minVal) / diff) * h;
+            System.out.println("[DEBUG] Drawing point " + i + ": x=" + x + ", y=" + y + ", price=" + prices.get(i).getPrice());
+            if (i == 0) {
+                gc.moveTo(x, y);
+            } else {
+                gc.lineTo(x, y);
+            }
+            xPoints[i] = x;
+            yPoints[i] = y;
+        }
+        gc.stroke();
+
+        // Close path for gradient fill
+        xPoints[n] = (n - 1) * stepX;
+        yPoints[n] = h;
+        xPoints[n + 1] = 0;
+        yPoints[n + 1] = h;
+
+        // Draw smooth gradient below the line
+        javafx.scene.paint.LinearGradient fillGrad = new javafx.scene.paint.LinearGradient(
+            0, 0, 0, h, false, javafx.scene.paint.CycleMethod.NO_CYCLE,
+            new javafx.scene.paint.Stop(0, isPositive ? Color.web("#27AE60", 0.15) : Color.web("#C0392B", 0.15)),
+            new javafx.scene.paint.Stop(1, Color.TRANSPARENT)
+        );
+        gc.setFill(fillGrad);
+        gc.fillPolygon(xPoints, yPoints, n + 2);
+
+        stockChartPane.getChildren().add(canvas);
     }
 }
