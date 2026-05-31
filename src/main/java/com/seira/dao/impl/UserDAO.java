@@ -33,9 +33,10 @@ public class UserDAO implements IUserDAO {
     public User login(String email, String password) {
         try {
             PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
-                "SELECT * FROM users WHERE email = ?"
+                "SELECT * FROM users WHERE email = ? or username = ?"
             );
             ps.setString(1, email);
+            ps.setString(2, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next() && BCrypt.checkpw(password, rs.getString("password_hash"))) {
                 User u = new User();

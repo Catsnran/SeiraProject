@@ -28,7 +28,9 @@
             <VBox styleClass="card" HBox.hgrow="ALWAYS" prefWidth="340" spacing="16">
                 <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
                 <HBox alignment="CENTER_LEFT" spacing="8">
-                    <Label text="🏛" style="-fx-font-size:16;"/>
+                    <StackPane styleClass="icon-container">
+                        <Label text="🏛" style="-fx-font-size:28;"/>
+                    </StackPane>
                     <Label text="Kekayaan Bersih" styleClass="card-label"/>
                 </HBox>
                 <Label fx:id="netWorthLabel" text="Rp 0" styleClass="stat-large"/>
@@ -48,7 +50,9 @@
             <!-- Monthly Income -->
             <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
                 <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
-                <Label text="💵" style="-fx-font-size:28;"/>
+                <StackPane styleClass="icon-container" maxWidth="-Infinity">
+                    <Label text="💵" style="-fx-font-size:28;"/>
+                </StackPane>
                 <Label text="Pemasukan Bulanan" styleClass="card-label"/>
                 <Label fx:id="monthlyIncomeLabel" text="Rp 0" styleClass="stat-medium"/>
                 <ProgressBar fx:id="incomeProgress" progress="0" styleClass="progress-bar progress-green" maxWidth="Infinity"/>
@@ -58,7 +62,9 @@
             <!-- Monthly Expense -->
             <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="12">
                 <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
-                <Label text="🛒" style="-fx-font-size:28;"/>
+                <StackPane styleClass="icon-container" maxWidth="-Infinity">
+                    <Label text="🛒" style="-fx-font-size:28; -fx-translate-y: 3;"/>
+                </StackPane>
                 <Label text="Pengeluaran Bulanan" styleClass="card-label"/>
                 <Label fx:id="monthlyExpenseLabel" text="Rp 0" styleClass="stat-medium"/>
                 <HBox spacing="8" alignment="CENTER_LEFT">
