@@ -34,6 +34,9 @@ public class RegisterControllers {
         if (password.length() < 6) {
             showError("Password minimal 6 karakter."); return;
         }
+        if(!password.matches("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+")){
+            showError("Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, dan satu angka."); return;
+        }
         if (!password.equals(confirm)) {
             showError("Konfirmasi password tidak cocok."); return;
         }

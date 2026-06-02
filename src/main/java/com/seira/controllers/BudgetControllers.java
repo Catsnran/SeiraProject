@@ -247,6 +247,7 @@ public class BudgetControllers {
                     String txt = amtField.getText().trim();
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah anggaran tidak boleh kosong."); return; }
                     try {
+                        System.out.println(catCombo.getValue());
                         Budget b = new Budget();
                         b.setUserId(userId);
                         b.setCategoryId(catCombo.getValue().getId());

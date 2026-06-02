@@ -4,14 +4,6 @@ import com.seira.dao.impl.*;
 import com.seira.dao.interfaces.*;
 import com.seira.models.Transaction;
 
-/**
- * Factory untuk mendapatkan instance DAO.
- * Semua controller mengakses data lewat class ini.
- *
- * Contoh pemakaian:
- *   DAOFactory.getTransactionDAO().add(t);
- *   DAOFactory.getReportDAO().getTotalIncome(userId, period);
- */
 public class DAOFactory {
 
     private static final UserDAO          userDAO          = new UserDAO();
