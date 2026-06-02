@@ -712,6 +712,16 @@
     -fx-font-size: 36px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-alignment: center;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+.amount-display:focused {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
 }
 .numpad {
     -fx-background-color: transparent;

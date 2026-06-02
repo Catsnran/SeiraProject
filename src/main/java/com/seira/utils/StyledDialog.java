@@ -9,6 +9,7 @@ import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.scene.input.MouseEvent;
 
 /**
  * Seira-themed modal dialog builder.
@@ -87,6 +88,18 @@ public class StyledDialog {
             closeBtn.setOnAction(e -> { if (onCancel != null) onCancel.run(); stage.close(); });
 
             header.getChildren().addAll(iconLbl, titleBox, closeBtn);
+
+            // Enable dragging for undecorated window
+            final double[] xOffset = new double[1];
+            final double[] yOffset = new double[1];
+            header.setOnMousePressed((MouseEvent event) -> {
+                xOffset[0] = event.getSceneX();
+                yOffset[0] = event.getSceneY();
+            });
+            header.setOnMouseDragged((MouseEvent event) -> {
+                stage.setX(event.getScreenX() - xOffset[0]);
+                stage.setY(event.getScreenY() - yOffset[0]);
+            });
 
             // Content area
             VBox body = new VBox(14);
