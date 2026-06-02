@@ -4,6 +4,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import javax.crypto.SecretKey;
 import java.io.*;
+import java.util.Date;
+
 
 public class TokenManager {
     private static final String TOKEN_FILE = "data/token.dat";
@@ -12,9 +14,11 @@ public class TokenManager {
     private static final String ENCRYPTION_KEY = "seiraSecretKey123456789012345678"; 
     private static final SecretKey KEY = Keys.hmacShaKeyFor(ENCRYPTION_KEY.getBytes());
     
-    public static void saveToken(String email) throws Exception {
+    public static void saveToken(String user) throws Exception {
         String token = Jwts.builder()
-            .subject(email)
+            .subject(user)
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 300000))
             .signWith(KEY)
             .compact();
         
