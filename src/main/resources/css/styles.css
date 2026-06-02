@@ -801,6 +801,16 @@
 /* =========================================
    DASHBOARD EXTRAS
    ========================================= */
+
+.icon-container{
+    -fx-background-color: #D97757; 
+    -fx-background-radius: 4;
+    -fx-padding: 5;
+}
+.icon-color{
+    -fx-background-color: #D97757;
+}
+
 .ledger-row {
     -fx-alignment: CENTER_LEFT;
     -fx-border-color: #F0EBE0;
