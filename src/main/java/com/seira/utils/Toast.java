@@ -17,6 +17,9 @@ import javafx.util.Duration;
  */
 public class Toast {
 
+    private static Double customX = null;
+    private static Double customY = null;
+
     public static void show(String message) {
         show(message, "✦", "#C87941");
     }
@@ -27,6 +30,25 @@ public class Toast {
 
     public static void showError(String message) {
         show(message, "✕", "#C0392B");
+    }
+
+    public static void setXY(double x, double y) {
+        if(x == -1){
+            customX = null;
+        }else{
+            customX = x;
+        }
+        if (y == -1){
+            customY = null;
+        }else{
+            customY = y;
+        }
+        
+    }
+
+    public static void resetXY() {
+        customX = null;
+        customY = null;
     }
 
     private static void show(String message, String icon, String colorHex) {
@@ -67,8 +89,11 @@ public class Toast {
                 root.layout();
                 double w = root.prefWidth(-1);
                 if (w <= 0) w = 300;
-                double x = owner.getX() + owner.getWidth() / 2 - w / 2;
-                double y = owner.getY() + owner.getHeight() - 110;
+                double h = root.prefHeight(-1);
+                if (h <= 0) h = 48;
+                
+                double x = (customX != null) ? customX : (owner.getX() + owner.getWidth() / 2 - w / 2);
+                double y = (customY != null) ? customY : (owner.getY() + owner.getHeight() / 2 - h / 2);
                 
                 toastStage.setX(x);
                 toastStage.setY(y);
@@ -87,7 +112,10 @@ public class Toast {
             fadeOut.setFromValue(1);
             fadeOut.setToValue(0);
             fadeOut.setDelay(Duration.millis(2500));
-            fadeOut.setOnFinished(evt -> toastStage.close());
+            fadeOut.setOnFinished(evt -> {
+                toastStage.close();
+                resetXY();
+            });
 
             fadeIn.play();
             fadeIn.setOnFinished(evt -> fadeOut.play());

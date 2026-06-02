@@ -50,16 +50,41 @@ public class BudgetDAO implements IBudgetDAO {
     @Override
     public boolean save(Budget b) {
         try {
-            PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
-                "INSERT OR REPLACE INTO budgets (user_id, category_id, amount, period) VALUES (?,?,?,?)"
+            // Check if budget already exists for this user, category, and period
+            PreparedStatement psCheck = DBConnection.getInstance().getConnection().prepareStatement(
+                "SELECT id FROM budgets WHERE user_id = ? AND category_id = ? AND period = ?"
             );
-            ps.setInt(1, b.getUserId());
-            ps.setInt(2, b.getCategoryId());
-            ps.setDouble(3, b.getAmount().doubleValue());
-            ps.setString(4, b.getPeriod().toString());
-            ps.executeUpdate();
+            psCheck.setInt(1, b.getUserId());
+            psCheck.setInt(2, b.getCategoryId());
+            psCheck.setString(3, b.getPeriod().toString());
+            ResultSet rs = psCheck.executeQuery();
+
+            if (rs.next()) {
+                // If it exists, update it
+                PreparedStatement psUpdate = DBConnection.getInstance().getConnection().prepareStatement(
+                    "UPDATE budgets SET amount = ? WHERE user_id = ? AND category_id = ? AND period = ?"
+                );
+                psUpdate.setDouble(1, b.getAmount().doubleValue());
+                psUpdate.setInt(2, b.getUserId());
+                psUpdate.setInt(3, b.getCategoryId());
+                psUpdate.setString(4, b.getPeriod().toString());
+                psUpdate.executeUpdate();
+            } else {
+                // If it doesn't exist, insert it
+                PreparedStatement psInsert = DBConnection.getInstance().getConnection().prepareStatement(
+                    "INSERT INTO budgets (user_id, category_id, amount, period) VALUES (?,?,?,?)"
+                );
+                psInsert.setInt(1, b.getUserId());
+                psInsert.setInt(2, b.getCategoryId());
+                psInsert.setDouble(3, b.getAmount().doubleValue());
+                psInsert.setString(4, b.getPeriod().toString());
+                psInsert.executeUpdate();
+            }
             return true;
-        } catch (SQLException e) { return false; }
+        } catch (SQLException e) { 
+            e.printStackTrace();
+            return false; 
+        }
     }
 
     @Override

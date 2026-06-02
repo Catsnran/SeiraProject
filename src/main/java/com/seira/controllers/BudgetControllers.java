@@ -34,6 +34,7 @@ public class BudgetControllers {
 
     private int userId;
     private YearMonth currentPeriod = YearMonth.now();
+    private String amountStr;
 
     @FXML
     public void initialize() {
@@ -247,11 +248,20 @@ public class BudgetControllers {
                     String txt = amtField.getText().trim();
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah anggaran tidak boleh kosong."); return; }
                     try {
+                        BigDecimal newAmount = new BigDecimal(txt);
+                        amountStr = remainingLabel.getText().replaceAll("[^0-9]", "");
+                        double currentRemaining = Double.parseDouble(amountStr);
+
+                        if (newAmount.compareTo(BigDecimal.valueOf(currentRemaining)) > 0) {
+                            StyledDialog.showError(errLbl, "Alokasi melebihi sisa dana yang tersedia.");
+                            return;
+                        }
+
                         System.out.println(catCombo.getValue());
                         Budget b = new Budget();
                         b.setUserId(userId);
                         b.setCategoryId(catCombo.getValue().getId());
-                        b.setAmount(new BigDecimal(txt));
+                        b.setAmount(newAmount);
                         b.setPeriod(currentPeriod);
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
@@ -291,6 +301,7 @@ public class BudgetControllers {
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah tidak boleh kosong."); return; }
                     try {
                         b.setAmount(new BigDecimal(txt));
+                        
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
                         loadData();

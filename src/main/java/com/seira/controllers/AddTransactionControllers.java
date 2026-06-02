@@ -16,7 +16,7 @@ import java.util.List;
 
 public class AddTransactionControllers {
 
-    @FXML private Label amountDisplay;
+    @FXML private TextField amountDisplay;
     @FXML private Button tabExpense, tabIncome, tabTransfer;
     @FXML private ComboBox<PaymentMethod> accountCombo;
     @FXML private ComboBox<Category> categoryCombo;
@@ -29,6 +29,7 @@ public class AddTransactionControllers {
     @FXML private Label errorLabel;
 
     private StringBuilder amountStr = new StringBuilder("0");
+    private boolean isUpdatingAmount = false;
     private String type = "EXPENSE";
     private int userId;
     private Transaction editTarget = null;
@@ -40,6 +41,20 @@ public class AddTransactionControllers {
         userId = SessionManager.getCurrentUser().getId();
         datePicker.setValue(LocalDate.now());
         loadCombos();
+
+        amountDisplay.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (isUpdatingAmount) return;
+            String digits = newValue.replaceAll("[^0-9]", "");
+            if (digits.isEmpty()) {
+                digits = "0";
+            }
+            if (digits.length() > 13) {
+                digits = digits.substring(0, 13);
+            }
+            amountStr = new StringBuilder(digits);
+            updateAmountDisplay();
+        });
+
         updateAmountDisplay();
         setActiveTab(tabExpense);
     }
@@ -160,11 +175,17 @@ public class AddTransactionControllers {
     }
 
     private void updateAmountDisplay() {
+        isUpdatingAmount = true;
         try {
             long val = Long.parseLong(amountStr.toString());
-            amountDisplay.setText("Rp " + String.format("%,d", val).replace(',', '.'));
+            String formatted = "Rp " + String.format("%,d", val).replace(',', '.');
+            amountDisplay.setText(formatted);
+            amountDisplay.positionCaret(formatted.length());
         } catch (NumberFormatException e) {
             amountDisplay.setText("Rp 0");
+            amountDisplay.positionCaret(4);
+        } finally {
+            isUpdatingAmount = false;
         }
     }
 

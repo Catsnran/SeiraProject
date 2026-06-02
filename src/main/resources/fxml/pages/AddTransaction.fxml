@@ -19,7 +19,7 @@
         <VBox styleClass="amount-display-box" alignment="CENTER" prefHeight="110">
             <padding><Insets top="20" left="24" bottom="20" right="24"/></padding>
             <Label text="TOTAL JUMLAH" styleClass="mini-label" style="-fx-text-fill: rgba(255,255,255,0.6);"/>
-            <Label fx:id="amountDisplay" text="Rp 0" styleClass="amount-display"/>
+            <TextField fx:id="amountDisplay" text="Rp 0" styleClass="amount-display"/>
         </VBox>
 
         <!-- Numpad -->
