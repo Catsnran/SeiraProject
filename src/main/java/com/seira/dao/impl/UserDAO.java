@@ -60,4 +60,24 @@ public class UserDAO implements IUserDAO {
             return ps.executeQuery().next();
         } catch (SQLException e) { return false; }
     }
+
+    @Override
+    public User findByEmail(String email) {
+        try {
+            PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
+                "SELECT * FROM users WHERE email = ?"
+            );
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                User u = new User();
+                u.setId(rs.getInt("id"));
+                u.setUsername(rs.getString("username"));
+                u.setEmail(rs.getString("email"));
+                u.setCurrency(rs.getString("currency"));
+                return u;
+            }
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
 }

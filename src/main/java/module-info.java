@@ -10,6 +10,7 @@ module org.seira {
     requires com.opencsv;
     requires java.net.http;
     requires com.google.gson;
+    requires jjwt.api;
 
     opens com.seira to javafx.fxml;
     exports com.seira;

@@ -18,6 +18,7 @@ public class SeiraApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
         DatabaseManager.getInstance().initialize();
+        SessionManager.setPrimaryStage(primaryStage);
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/Login.fxml"));
         Parent root = loader.load();
@@ -38,8 +39,6 @@ public class SeiraApp extends Application {
         primaryStage.setHeight(screenBounds.getHeight());
 
         primaryStage.show();
-
-        SessionManager.setPrimaryStage(primaryStage);
     }
 
     /** Titik masuk JVM. */
