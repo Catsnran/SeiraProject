@@ -214,11 +214,49 @@ public class BudgetControllers {
         pacePaneContainer.getChildren().add(canvas);
     }
 
+    // Sentinel untuk opsi "Tambah Kategori Baru" di combo budget
+    private static final Category ADD_NEW_CAT_BUDGET = new Category(-1, "+ Tambah Kategori Baru", null, "#C87941", "➕");
+
     @FXML
     public void showAddBudgetDialog() {
         List<Category> cats = DAOFactory.getCategoryDAO().findAll(userId, "EXPENSE");
+        // Hapus sentinel "Lainnya" yang ditambahkan DAO (id bisa besar saat list panjang)
+        cats.removeIf(c -> "Lainnya".equals(c.getName()) && c.getId() > 1000);
+
         ComboBox<Category> catCombo = StyledDialog.combo();
-        catCombo.getItems().setAll(cats);
+
+        // Cell factory dengan ikon dan warna khusus untuk "Tambah Baru"
+        catCombo.setCellFactory(lv -> new ListCell<>() {
+            @Override protected void updateItem(Category item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                if (item == ADD_NEW_CAT_BUDGET) {
+                    setText("  ➕  Tambah Kategori Baru");
+                    setStyle("-fx-text-fill: #C87941; -fx-font-weight: bold; -fx-font-size: 13;");
+                } else {
+                    String icon = item.getIcon() != null ? item.getIcon() : "📌";
+                    setText("  " + icon + "  " + item.getName());
+                    setStyle("-fx-text-fill: #1A0F05;");
+                }
+            }
+        });
+        catCombo.setButtonCell(new ListCell<>() {
+            @Override protected void updateItem(Category item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); return; }
+                if (item == ADD_NEW_CAT_BUDGET) {
+                    setText("➕  Tambah Kategori Baru");
+                    setStyle("-fx-text-fill: #C87941; -fx-font-weight: bold;");
+                } else {
+                    String icon = item.getIcon() != null ? item.getIcon() : "📌";
+                    setText(icon + "  " + item.getName());
+                    setStyle("-fx-text-fill: #1A0F05;");
+                }
+            }
+        });
+
+        catCombo.getItems().addAll(cats);
+        catCombo.getItems().add(ADD_NEW_CAT_BUDGET);
         if (!cats.isEmpty()) catCombo.setValue(cats.get(0));
 
         TextField amtField = StyledDialog.field("Jumlah anggaran (mis: 500000)");
@@ -232,6 +270,22 @@ public class BudgetControllers {
 
         Label errLbl = StyledDialog.errorLabel();
 
+        // Listener intercept "Tambah Kategori Baru"
+        catCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == ADD_NEW_CAT_BUDGET) {
+                catCombo.setValue(oldVal);
+                CategoryManagerDialog catDialog = new CategoryManagerDialog(userId);
+                catDialog.setOnCategoryAdded(newCat -> {
+                    if ("EXPENSE".equals(newCat.getType())) {
+                        int insertIdx = catCombo.getItems().size() - 1;
+                        catCombo.getItems().add(insertIdx, newCat);
+                        catCombo.setValue(newCat);
+                    }
+                });
+                catDialog.showAddDialog("EXPENSE");
+            }
+        });
+
         Stage dialog = new StyledDialog.Builder()
                 .title("Tambah Anggaran")
                 .subtitle("Atur batas pengeluaran per kategori")
@@ -244,7 +298,9 @@ public class BudgetControllers {
                         errLbl
                 )
                 .onConfirm(() -> {
-                    if (catCombo.getValue() == null) { StyledDialog.showError(errLbl, "Pilih kategori."); return; }
+                    if (catCombo.getValue() == null || catCombo.getValue() == ADD_NEW_CAT_BUDGET) {
+                        StyledDialog.showError(errLbl, "Pilih kategori terlebih dahulu."); return;
+                    }
                     String txt = amtField.getText().trim();
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah anggaran tidak boleh kosong."); return; }
                     try {
@@ -275,6 +331,12 @@ public class BudgetControllers {
         dialog.showAndWait();
     }
 
+    @FXML
+    public void showManageCategoriesDialog() {
+        CategoryManagerDialog dialog = new CategoryManagerDialog(userId);
+        dialog.showManageDialog();
+    }
+
     private void showEditBudgetDialog(Budget b) {
         TextField amtField = StyledDialog.field("Jumlah anggaran");
         amtField.setText(b.getAmount().toPlainString());
@@ -301,7 +363,7 @@ public class BudgetControllers {
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah tidak boleh kosong."); return; }
                     try {
                         b.setAmount(new BigDecimal(txt));
-                        
+
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
                         loadData();

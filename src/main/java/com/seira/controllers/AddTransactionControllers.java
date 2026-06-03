@@ -16,6 +16,9 @@ import java.util.List;
 
 public class AddTransactionControllers {
 
+    // Sentinel object untuk opsi "Tambah Kategori Baru"
+    private static final Category ADD_NEW_CATEGORY = new Category(-1, "+ Tambah Kategori Baru", null, "#C87941", "➕");
+
     @FXML private TextField amountDisplay;
     @FXML private Button tabExpense, tabIncome, tabTransfer;
     @FXML private ComboBox<PaymentMethod> accountCombo;
@@ -57,6 +60,7 @@ public class AddTransactionControllers {
 
         updateAmountDisplay();
         setActiveTab(tabExpense);
+        setupCategoryComboListener();
     }
 
     public void setMainController(MainControllers mc) { this.mainController = mc; }
@@ -98,8 +102,71 @@ public class AddTransactionControllers {
     private void loadCategoryCombo() {
         String catType = "INCOME".equals(type) ? "INCOME" : "EXPENSE";
         List<Category> cats = DAOFactory.getCategoryDAO().findAll(userId, catType);
-        categoryCombo.getItems().setAll(cats);
+
+        // Custom cell factory untuk render "+ Tambah Kategori Baru" secara khusus
+        categoryCombo.setCellFactory(lv -> new ListCell<>() {
+            @Override
+            protected void updateItem(Category item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); setStyle(""); return; }
+                if (item == ADD_NEW_CATEGORY) {
+                    setText("  ➕  Tambah Kategori Baru");
+                    setStyle("-fx-text-fill: #C87941; -fx-font-weight: bold; -fx-font-size: 13;");
+                } else {
+                    String icon = item.getIcon() != null ? item.getIcon() : "📌";
+                    setText("  " + icon + "  " + item.getName());
+                    setStyle("-fx-text-fill: #1A0F05;");
+                }
+            }
+        });
+
+        categoryCombo.setButtonCell(new ListCell<>() {
+            @Override
+            protected void updateItem(Category item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) { setText(null); return; }
+                if (item == ADD_NEW_CATEGORY) {
+                    setText("➕  Tambah Kategori Baru");
+                    setStyle("-fx-text-fill: #C87941; -fx-font-weight: bold;");
+                } else {
+                    String icon = item.getIcon() != null ? item.getIcon() : "📌";
+                    setText(icon + "  " + item.getName());
+                    setStyle("-fx-text-fill: #1A0F05;");
+                }
+            }
+        });
+
+        categoryCombo.getItems().clear();
+        categoryCombo.getItems().addAll(cats);
+        categoryCombo.getItems().add(ADD_NEW_CATEGORY); // opsi terakhir
         if (!cats.isEmpty()) categoryCombo.setValue(cats.get(0));
+    }
+
+    /**
+     * Listener: saat user pilih "Tambah Kategori Baru", buka dialog.
+     * Setelah kategori dibuat, langsung set sebagai nilai terpilih.
+     */
+    private void setupCategoryComboListener() {
+        categoryCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == ADD_NEW_CATEGORY) {
+                // Kembalikan nilai sebelumnya dulu agar tidak stuck di sentinel
+                categoryCombo.setValue(oldVal);
+
+                CategoryManagerDialog dialog = new CategoryManagerDialog(userId);
+                dialog.setOnCategoryAdded(newCat -> {
+                    // Tambahkan ke combo sebelum sentinel, lalu pilih
+                    if (newCat.getType().equals("INCOME".equals(type) ? "INCOME" : "EXPENSE")) {
+                        int insertIdx = categoryCombo.getItems().size() - 1; // sebelum sentinel
+                        categoryCombo.getItems().add(insertIdx, newCat);
+                        categoryCombo.setValue(newCat);
+                    } else {
+                        // Tipe berbeda — reload setelah switch
+                        loadCategoryCombo();
+                    }
+                });
+                dialog.showAddDialog("INCOME".equals(type) ? "INCOME" : "EXPENSE");
+            }
+        });
     }
 
     @FXML private void selectExpense() {
@@ -107,6 +174,7 @@ public class AddTransactionControllers {
         setActiveTab(tabExpense);
         showCategoryMode();
         loadCategoryCombo();
+        setupCategoryComboListener();
     }
 
     @FXML private void selectIncome() {
@@ -114,6 +182,7 @@ public class AddTransactionControllers {
         setActiveTab(tabIncome);
         showCategoryMode();
         loadCategoryCombo();
+        setupCategoryComboListener();
     }
 
     @FXML private void selectTransfer() {
@@ -242,7 +311,10 @@ public class AddTransactionControllers {
         }
 
         // EXPENSE / INCOME
-        if (categoryCombo.getValue() == null) { showError("Pilih kategori terlebih dahulu."); return; }
+        if (categoryCombo.getValue() == null || categoryCombo.getValue() == ADD_NEW_CATEGORY) {
+            showError("Pilih kategori terlebih dahulu.");
+            return;
+        }
 
         String desc = notesArea.getText().trim();
         if (desc.isEmpty()) desc = categoryCombo.getValue().getName();
