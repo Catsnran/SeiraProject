@@ -60,6 +60,8 @@
 
                 <!-- Add new budget button -->
                 <Button maxWidth="Infinity" onAction="#showAddBudgetDialog" styleClass="btn-primary" text="＋ Tambah Anggaran Baru" />
+                <!-- Manage custom categories button -->
+                <Button maxWidth="Infinity" onAction="#showManageCategoriesDialog" styleClass="btn-outline" text="📂 Kelola Kategori" />
             </VBox>
 
             <!-- Right: Category Envelopes -->
