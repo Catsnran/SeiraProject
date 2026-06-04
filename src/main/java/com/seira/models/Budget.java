@@ -44,6 +44,7 @@ public class Budget {
     }
 
     public double getPercentage() {
+        if (getAmount().doubleValue() == 0.0 && getSpent().doubleValue() > 0.0) return Double.POSITIVE_INFINITY;
         if (getAmount().compareTo(BigDecimal.ZERO) == 0) return 0;
         return getSpent().doubleValue() / getAmount().doubleValue() * 100.0;
     }
