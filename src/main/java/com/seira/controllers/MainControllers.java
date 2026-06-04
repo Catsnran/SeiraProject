@@ -3,7 +3,6 @@ package com.seira.controllers;
 
 import com.seira.utils.NavigationManager;
 import com.seira.utils.SessionManager;
-import com.seira.utils.TokenManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -41,7 +40,6 @@ public class MainControllers {
     @FXML private void openSettings()     {}
     @FXML private void openSupport()      {}
     @FXML private void navLogout()      {
-        TokenManager.deleteToken();
         SessionManager.logout();
         NavigationManager.navigateTo("/fxml/Login.fxml");
     }
