@@ -312,6 +312,10 @@ public class BudgetControllers {
                             StyledDialog.showError(errLbl, "Alokasi melebihi sisa dana yang tersedia.");
                             return;
                         }
+                        if (newAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                            StyledDialog.showError(errLbl, "Anggaran harus lebih besar dari nol.");
+                            return;
+                        }
 
                         System.out.println(catCombo.getValue());
                         Budget b = new Budget();
