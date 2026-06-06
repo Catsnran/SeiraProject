@@ -4,7 +4,6 @@ import com.seira.dao.DAOFactory;
 import com.seira.models.User;
 import com.seira.utils.NavigationManager;
 import com.seira.utils.SessionManager;
-import com.seira.utils.TokenManager;
 import javafx.application.Platform;
 
 import javafx.fxml.FXML;
@@ -23,22 +22,6 @@ public class LoginControllers {
     public void initialize() {
         emailField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.TAB) passwordField.requestFocus(); });
         passwordField.setOnKeyPressed(e -> { if (e.getCode() == KeyCode.ENTER) handleLogin(); });
-
-        // auto-login jika ada token
-        Platform.runLater(() -> {
-            try {
-                String token = TokenManager.loadToken();
-                if (token != null) {        
-                    User cachedUser = DAOFactory.getUserDAO().findByEmail(token);
-                    if (cachedUser != null) {
-                        SessionManager.setCurrentUser(cachedUser);
-                        NavigationManager.navigateTo("/fxml/Main.fxml");
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
     }
 
     @FXML
@@ -55,11 +38,6 @@ public class LoginControllers {
         User user = DAOFactory.getUserDAO().login(email, password);
         if (user != null) {
             SessionManager.setCurrentUser(user);
-            try {
-                TokenManager.saveToken(user.getEmail());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
             NavigationManager.navigateTo("/fxml/Main.fxml");
         } else {
             showError("Email atau password salah.");
