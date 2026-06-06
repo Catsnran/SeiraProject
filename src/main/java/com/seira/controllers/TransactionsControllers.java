@@ -44,10 +44,11 @@ public class TransactionsControllers {
     }
 
     private void loadTransactions() {
-        if (!mainControllers.getSearchQuery().isEmpty())
+        if (!mainControllers.getSearchQuery().isEmpty()) {
+            SearchQuery query = new SearchQuery(mainControllers.getSearchQuery());
             allTransactions = DAOFactory.getTransactionDAO()
-                .findAll(userId, currentFilter, null, null, mainControllers.getSearchQuery());
-        else
+                .findAll(userId, currentFilter, null, null, query.getKeywords(), query.getReferences());
+        } else
             allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, null, null, null);
         currentPage = 0;
         renderTransactions();
@@ -244,7 +245,16 @@ public class TransactionsControllers {
         dialog.getDialogPane().setContent(content);
         dialog.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.OK) {
-                allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, fromPicker.getValue(), toPicker.getValue(), null);
+                if (!mainControllers.getSearchQuery().isEmpty()) {
+                    SearchQuery query = new SearchQuery(mainControllers.getSearchQuery());
+                    allTransactions = DAOFactory.getTransactionDAO()
+                        .findAll(
+                            userId, currentFilter, fromPicker.getValue(), toPicker.getValue(),
+                            query.getKeywords(), query.getReferences()
+                        );
+                } else
+                    allTransactions = DAOFactory.getTransactionDAO()
+                        .findAll(userId, currentFilter, fromPicker.getValue(), toPicker.getValue(), null);
                 currentPage = 0;
                 renderTransactions();
             }
