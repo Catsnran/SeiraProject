@@ -102,9 +102,22 @@ public class MainControllers {
         }
     }
 
+    // hasndle search
     @FXML
-    private void handleSearch() {
-        // future: delegate to page controller
+    private void handleSearch(javafx.scene.input.KeyEvent event) {
+        if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
+            loadPage("transactions");
+        }
+    }
+
+    public String getSearchQuery() {
+        return searchField != null ? searchField.getText().trim() : "";
+    }
+
+    public void clearSearchField() {
+        if (searchField != null) {
+            searchField.setText("");
+        }
     }
 
     // refresh on profile change

@@ -36,16 +36,19 @@ public class TransactionsControllers {
     @FXML
     public void initialize() {
         userId = SessionManager.getCurrentUser().getId();
-        loadTransactions();
         buildNarrative();
     }
 
     public void setMainController(com.seira.controllers.MainControllers mc) {
         this.mainControllers = mc;
+        loadTransactions();
     }
 
     private void loadTransactions() {
-        allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, null, null, null);
+        String query = (mainControllers != null) ? mainControllers.getSearchQuery() : "";
+        allTransactions = DAOFactory.getTransactionDAO().findAll(
+            userId, currentFilter, null, null, query.isEmpty() ? null : query
+        );
         currentPage = 0;
         renderTransactions();
     }
@@ -233,7 +236,10 @@ public class TransactionsControllers {
         dialog.getDialogPane().setContent(content);
         dialog.showAndWait().ifPresent(btn -> {
             if (btn == ButtonType.OK) {
-                allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, fromPicker.getValue(), toPicker.getValue(), null);
+                String query = (mainControllers != null) ? mainControllers.getSearchQuery() : "";
+                allTransactions = DAOFactory.getTransactionDAO().findAll(
+                    userId, currentFilter, fromPicker.getValue(), toPicker.getValue(), query.isEmpty() ? null : query
+                );
                 currentPage = 0;
                 renderTransactions();
             }
