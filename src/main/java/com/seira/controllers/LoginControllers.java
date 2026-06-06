@@ -45,6 +45,7 @@ public class LoginControllers {
     private void handleLogin() {
         String email = emailField.getText().trim();
         String password = passwordField.getText();
+        int passwordLength = password.length();
 
         if (email.isEmpty() || password.isEmpty()) {
             showError("Email dan password tidak boleh kosong.");

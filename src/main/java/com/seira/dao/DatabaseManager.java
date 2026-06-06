@@ -21,9 +21,21 @@ public class DatabaseManager {
     public void initialize() {
         try {
             createTables();
+            migrateSchema();
             seedDefaultCategories();
         } catch (SQLException e) {
             throw new RuntimeException("Gagal inisialisasi database", e);
+        }
+    }
+
+    /** Migrasi skema untuk kolom-kolom baru pada database yang sudah ada. */
+    private void migrateSchema() {
+        try {
+            Statement stmt = DBConnection.getInstance().getConnection().createStatement();
+            stmt.execute("ALTER TABLE users ADD COLUMN profile_photo TEXT");
+            stmt.close();
+        } catch (SQLException e) {
+            // Kolom sudah ada — abaikan
         }
     }
 
@@ -36,6 +48,7 @@ public class DatabaseManager {
                 email         TEXT UNIQUE NOT NULL,
                 password_hash TEXT NOT NULL,
                 currency      TEXT DEFAULT 'IDR',
+                profile_photo TEXT,
                 created_at    TEXT DEFAULT (datetime('now'))
             )
             """,
@@ -124,7 +137,6 @@ public class DatabaseManager {
                 {"Healthcare",    "EXPENSE", "#E74C3C", "💊"},
                 {"Education",     "EXPENSE", "#3498DB", "📚"},
                 {"Investing",     "EXPENSE", "#27AE60", "📈"},
-                {"Other",         "EXPENSE", "#95A5A6", "📌"},
                 {"Salary",        "INCOME",  "#27AE60", "💼"},
                 {"Freelance",     "INCOME",  "#2ECC71", "💻"},
                 {"Dividend",      "INCOME",  "#1ABC9C", "💰"},

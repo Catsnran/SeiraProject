@@ -28,13 +28,16 @@ public class RegisterControllers {
         if (username.isEmpty() || email.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
             showError("Semua field harus diisi."); return;
         }
-        if (!email.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$")) {
-            showError("Format email tidak valid."); return;
+        if (username.length() < 4) {
+            showError("Username minimal harus 4 karakter."); return;
         }
-        if (password.length() < 6) {
-            showError("Password minimal 6 karakter."); return;
+        if (!email.contains("@") || !email.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$")) {
+            showError("Format email tidak valid (harus mengandung '@' dan domain)."); return;
         }
-        if(!password.matches("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+")){
+        if (password.length() < 8) {
+            showError("Password minimal harus 8 karakter."); return;
+        }
+        if (!password.matches("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+")) {
             showError("Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, dan satu angka."); return;
         }
         if (!password.equals(confirm)) {

@@ -37,14 +37,15 @@ public class CategoryDAO implements ICategoryDAO {
             while (rs.next()) {
                 list.add(mapRow(rs));
             }
-            System.out.println(list.size());
-            Category newCategory = new Category();
-            newCategory.setId(list.size() + 1);
-            newCategory.setName("Lainnya");
-            newCategory.setType(type);
-            newCategory.setColor("#808080");
-            newCategory.setIcon("...");
-            list.add(newCategory);
+            // System.out.println(list.size());
+            // Category newCategory = new Category();
+            // newCategory.setId(list.size() + 1);
+            // newCategory.setName("Lainnya");
+            // newCategory.setType(type);
+            // newCategory.setColor("#808080");
+            // newCategory.setIcon("...");
+            // list.add(newCategory); 
+            // cancel the usage of this atp
         } catch (SQLException e) { e.printStackTrace(); }
         return list;
     }

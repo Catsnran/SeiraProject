@@ -10,7 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserDAO implements IUserDAO {
-
+    int passwordLength;
+    
     @Override
     public boolean register(String username, String email, String password) {
         try {
@@ -39,12 +40,8 @@ public class UserDAO implements IUserDAO {
             ps.setString(2, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next() && BCrypt.checkpw(password, rs.getString("password_hash"))) {
-                User u = new User();
-                u.setId(rs.getInt("id"));
-                u.setUsername(rs.getString("username"));
-                u.setEmail(rs.getString("email"));
-                u.setCurrency(rs.getString("currency"));
-                return u;
+                passwordLength = password.length();
+                return mapUser(rs);
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return null;
@@ -70,14 +67,71 @@ public class UserDAO implements IUserDAO {
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                User u = new User();
-                u.setId(rs.getInt("id"));
-                u.setUsername(rs.getString("username"));
-                u.setEmail(rs.getString("email"));
-                u.setCurrency(rs.getString("currency"));
-                return u;
+                return mapUser(rs);
             }
         } catch (SQLException e) { e.printStackTrace(); }
         return null;
+    }
+
+    @Override
+    public int updateProfile(int userId, String username, String email, String newPassword, String profilePhoto) {
+        try {
+            StringBuilder sql = new StringBuilder("UPDATE users SET username=?, email=?, profile_photo=?");
+            if (newPassword != null && !newPassword.isEmpty()) {
+                sql.append(", password_hash=?");
+            }
+            sql.append(" WHERE id=?");
+
+            PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(sql.toString());
+            ps.setString(1, username);
+            ps.setString(2, email);
+            ps.setString(3, profilePhoto);
+
+            int idx = 4;
+            if (newPassword != null && !newPassword.isEmpty()) {
+                ps.setString(idx++, BCrypt.hashpw(newPassword, BCrypt.gensalt()));
+                this.passwordLength = newPassword.length();
+            }
+            ps.setInt(idx, userId);
+
+            int rows = ps.executeUpdate();
+            ps.close();
+            return rows > 0 ? 1 : 0; // 1 = berhasil, 0 = tidak ada perubahan
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return -1; // gagal
+        }
+    }
+
+    @Override
+    public User findById(int userId) {
+        try {
+            PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
+                "SELECT * FROM users WHERE id = ?"
+            );
+            ps.setInt(1, userId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return mapUser(rs);
+            }
+            
+        } catch (SQLException e) { e.printStackTrace(); }
+        return null;
+    }
+
+    private User mapUser(ResultSet rs) throws SQLException {
+        User u = new User();
+        u.setId(rs.getInt("id"));
+        u.setUsername(rs.getString("username"));
+        u.setEmail(rs.getString("email"));
+        u.setPasswordLength(passwordLength);
+        u.setPasswordHash(rs.getString("password_hash"));
+        u.setCurrency(rs.getString("currency"));
+        try {
+            u.setProfilePhoto(rs.getString("profile_photo"));
+        } catch (SQLException ignored) {
+            // kolom belum ada di database lama
+        }
+        return u;
     }
 }
