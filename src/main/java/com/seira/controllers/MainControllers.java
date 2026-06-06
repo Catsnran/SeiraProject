@@ -9,6 +9,8 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 
 public class MainControllers {
@@ -89,8 +91,10 @@ public class MainControllers {
     }
 
     @FXML
-    private void handleSearch() {
-        // future: delegate to page controller
+    private void handleSearch(KeyEvent ev) {
+        if (ev.getCode() != KeyCode.ENTER) return;
+        SessionManager.setSearchQuery(searchField.getText());
+        loadPage("transactions");
     }
 
     private void updateNavActive(String page) {

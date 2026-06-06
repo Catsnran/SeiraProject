@@ -2,9 +2,7 @@ package com.seira.controllers;
 
 import com.seira.dao.DAOFactory;
 import com.seira.models.Transaction;
-import com.seira.utils.FormatUtil;
-import com.seira.utils.SessionManager;
-import com.seira.utils.Toast;
+import com.seira.utils.*;
 import com.opencsv.CSVWriter;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
@@ -22,7 +20,8 @@ import java.util.List;
 public class TransactionsControllers {
 
     @FXML private VBox transactionList;
-    @FXML private Label narrativeText;
+    @FXML private Label narrativeText, searchQuery;
+    @FXML private HBox searchInfo;
     @FXML private Button showMoreBtn;
     @FXML private Button btnFilterAll, btnFilterExpenses, btnFilterIncome;
 
@@ -45,7 +44,13 @@ public class TransactionsControllers {
     }
 
     private void loadTransactions() {
-        allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, null, null, null);
+        if (SessionManager.getSearchQuery() != null) {
+            // we're searching something!
+            SearchQuery query = new SearchQuery(SessionManager.getSearchQuery());
+            allTransactions = DAOFactory.getTransactionDAO()
+                .findAll(userId, currentFilter, query.getStartDate(), query.getEndDate(), query.getKeywords());
+        } else
+            allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, null, null, null);
         currentPage = 0;
         renderTransactions();
     }
@@ -62,12 +67,20 @@ public class TransactionsControllers {
         if (showMoreBtn != null)
             showMoreBtn.setVisible(allTransactions.size() > limit);
 
+        boolean isSearching = SessionManager.getSearchQuery() != null;
         if (visible.isEmpty()) {
-            Label empty = new Label("Belum ada transaksi. Tekan '+ Tambah Transaksi' untuk memulai.");
+            Label empty = new Label(
+                isSearching
+                ? "Tidak ada transaksi dengan kata kunci seperti ini."
+                : "Belum ada transaksi. Tekan '+ Tambah Transaksi' untuk memulai."
+            );
             empty.getStyleClass().add("mini-label");
             empty.setPadding(new Insets(24, 20, 24, 20));
             transactionList.getChildren().add(empty);
         }
+
+        searchInfo.setVisible(isSearching);
+        searchQuery.setText(SessionManager.getSearchQuery());
     }
 
     private HBox buildTransactionRow(Transaction t) {
@@ -277,5 +290,10 @@ public class TransactionsControllers {
         a.setHeaderText(null);
         a.setContentText(msg);
         a.showAndWait();
+    }
+
+    @FXML
+    private void deleteSearch() {
+
     }
 }
