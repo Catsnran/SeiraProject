@@ -35,21 +35,19 @@ public class TransactionsControllers {
     @FXML
     public void initialize() {
         userId = SessionManager.getCurrentUser().getId();
-        loadTransactions();
         buildNarrative();
     }
 
     public void setMainController(com.seira.controllers.MainControllers mc) {
         this.mainControllers = mc;
+        loadTransactions();
     }
 
     private void loadTransactions() {
-        if (SessionManager.getSearchQuery() != null) {
-            // we're searching something!
-            SearchQuery query = new SearchQuery(SessionManager.getSearchQuery());
+        if (!mainControllers.getSearchQuery().isEmpty())
             allTransactions = DAOFactory.getTransactionDAO()
-                .findAll(userId, currentFilter, query.getStartDate(), query.getEndDate(), query.getKeywords());
-        } else
+                .findAll(userId, currentFilter, null, null, mainControllers.getSearchQuery());
+        else
             allTransactions = DAOFactory.getTransactionDAO().findAll(userId, currentFilter, null, null, null);
         currentPage = 0;
         renderTransactions();
@@ -67,7 +65,7 @@ public class TransactionsControllers {
         if (showMoreBtn != null)
             showMoreBtn.setVisible(allTransactions.size() > limit);
 
-        boolean isSearching = SessionManager.getSearchQuery() != null;
+        boolean isSearching = !mainControllers.getSearchQuery().isEmpty();
         if (visible.isEmpty()) {
             Label empty = new Label(
                 isSearching
@@ -80,7 +78,7 @@ public class TransactionsControllers {
         }
 
         searchInfo.setVisible(isSearching);
-        searchQuery.setText(SessionManager.getSearchQuery());
+        searchQuery.setText(mainControllers.getSearchQuery());
     }
 
     private HBox buildTransactionRow(Transaction t) {
@@ -294,6 +292,7 @@ public class TransactionsControllers {
 
     @FXML
     private void deleteSearch() {
-
+        mainControllers.clearSearchField();
+        mainControllers.loadPage("transactions"); // is this how you refresh?
     }
 }

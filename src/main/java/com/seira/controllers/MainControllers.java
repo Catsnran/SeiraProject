@@ -92,9 +92,14 @@ public class MainControllers {
 
     @FXML
     private void handleSearch(KeyEvent ev) {
-        if (ev.getCode() != KeyCode.ENTER) return;
-        SessionManager.setSearchQuery(searchField.getText());
+        // if (ev.getCode() != KeyCode.ENTER) return; // commenting this might be a bad idea
         loadPage("transactions");
+    }
+    public void clearSearchField() {
+        searchField.setText("");
+    }
+    public String getSearchQuery() {
+        return searchField.getText();
     }
 
     private void updateNavActive(String page) {
