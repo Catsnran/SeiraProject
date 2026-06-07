@@ -10,5 +10,8 @@ public interface ITransactionDAO {
     boolean update(Transaction t);
     boolean delete(int id);
     Transaction findById(int id);
-    List<Transaction> findAll(int userId, String type, LocalDate from, LocalDate to, String search);
+    List<Transaction> findAll(int userId, String type, LocalDate from, LocalDate to, String search, List<String> references);
+    default List<Transaction> findAll(int userId, String type, LocalDate from, LocalDate to, String search) {
+        return findAll(userId, type, from, to, search, null);
+    };
 }

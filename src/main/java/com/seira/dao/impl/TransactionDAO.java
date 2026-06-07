@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TransactionDAO implements ITransactionDAO {
 
@@ -128,7 +129,7 @@ public class TransactionDAO implements ITransactionDAO {
     }
 
     @Override
-    public List<Transaction> findAll(int userId, String type, LocalDate from, LocalDate to, String search) {
+    public List<Transaction> findAll(int userId, String type, LocalDate from, LocalDate to, String search, List<String> references) {
         List<Transaction> list = new ArrayList<>();
         try {
             StringBuilder sql = new StringBuilder(
@@ -146,6 +147,13 @@ public class TransactionDAO implements ITransactionDAO {
                 params.add("%" + search + "%");
                 params.add("%" + search + "%");
                 params.add("%" + search + "%");
+            }
+            if (references != null && !references.isEmpty()) {
+                StringJoiner refClause = new StringJoiner(" OR ", "(", ")");
+                for (int i = 0; i < references.size(); i++)
+                    refClause.add("t.reference==?");
+                sql.append(" AND ").append(refClause);
+                params.addAll(references);
             }
             sql.append(" ORDER BY t.date DESC, t.id DESC");
 

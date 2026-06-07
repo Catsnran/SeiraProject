@@ -9,6 +9,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import com.seira.models.User;
@@ -102,22 +103,16 @@ public class MainControllers {
         }
     }
 
-    // hasndle search
     @FXML
-    private void handleSearch(javafx.scene.input.KeyEvent event) {
-        if (event.getCode() == javafx.scene.input.KeyCode.ENTER) {
-            loadPage("transactions");
-        }
+    private void handleSearch(KeyEvent ev) {
+        // if (ev.getCode() != KeyCode.ENTER) return; // commenting this might be a bad idea
+        loadPage("transactions");
     }
-
-    public String getSearchQuery() {
-        return searchField != null ? searchField.getText().trim() : "";
-    }
-
     public void clearSearchField() {
-        if (searchField != null) {
-            searchField.setText("");
-        }
+        searchField.setText("");
+    }
+    public String getSearchQuery() {
+        return searchField.getText();
     }
 
     // refresh on profile change
@@ -138,11 +133,11 @@ public class MainControllers {
                     ImageView imgView = new ImageView(new Image(is));
                     imgView.setFitWidth(34);
                     imgView.setFitHeight(34);
-                    
+
                     // Clip to circle matching the userInitial styling diameter (34px)
                     Circle clip = new Circle(17, 17, 17);
                     imgView.setClip(clip);
-                    
+
                     userInitial.setGraphic(imgView);
                     userInitial.setText("");
                     userInitial.setStyle("-fx-background-color: transparent; -fx-padding: 0;");
@@ -152,7 +147,7 @@ public class MainControllers {
                 }
             }
         }
-        
+
         // Fallback to letter initial
         userInitial.setGraphic(null);
         String name = user.getUsername();

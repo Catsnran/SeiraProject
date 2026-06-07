@@ -13,7 +13,9 @@ public class SessionManager {
     public static Stage getPrimaryStage() { return primaryStage; }
     public static void setPrimaryStage(Stage stage) { primaryStage = stage; }
 
-    public static void logout() { currentUser = null; }
+    public static void logout() {
+        currentUser = null;
+    }
 
     public static boolean isLoggedIn() { return currentUser != null; }
 }
