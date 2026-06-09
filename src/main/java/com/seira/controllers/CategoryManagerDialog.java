@@ -118,7 +118,7 @@ public class CategoryManagerDialog {
         boolean isEdit = editTarget != null;
 
         VBox root = buildRootContainer();
-        root.setPrefWidth(480);
+        root.setPrefWidth(560);
 
         String headerTitle = isEdit ? "✏️ Edit Kategori" : "＋ Kategori Baru";
         String headerSub   = isEdit ? "Ubah detail kategori kustom" : "Tambahkan kategori ke daftarmu";
@@ -180,7 +180,7 @@ public class CategoryManagerDialog {
         Label iconPickerLabel = StyledDialog.fieldLabel("PILIH IKON");
         ScrollPane iconScroll = new ScrollPane();
         iconScroll.setFitToWidth(true);
-        iconScroll.setPrefHeight(130);
+        iconScroll.setPrefHeight(200);
         iconScroll.setStyle("-fx-background: #EDE7DC; -fx-background-color: #EDE7DC; " +
                 "-fx-border-color: transparent; -fx-background-radius: 8; -fx-border-radius: 8;");
 
@@ -192,7 +192,7 @@ public class CategoryManagerDialog {
 
         for (String emoji : ICON_OPTIONS) {
             Button iconBtn = new Button(emoji);
-            iconBtn.setPrefSize(44, 44);
+            iconBtn.setPrefSize(58, 58);
             boolean isSelected = emoji.equals(selectedIcon[0]);
             iconBtn.setStyle(buildIconBtnStyle(isSelected));
             iconBtn.setOnAction(e -> {

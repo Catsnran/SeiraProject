@@ -12,15 +12,15 @@
 
         <!-- Header -->
         <HBox alignment="CENTER_LEFT">
-            <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <VBox prefHeight="39.0" prefWidth="202.0" spacing="4" HBox.hgrow="ALWAYS">
                 <Label styleClass="page-title" text="Transaksi" />
-                <Label styleClass="page-subtitle" text="Mendokumentasikan perjalananmu menuju kejernihan fiskal." />
+                <Label styleClass="page-subtitle" text="Mendokumentasikan transaksimu." />
             </VBox>
-            <HBox alignment="CENTER" spacing="8">
-                <Button fx:id="btnFilterAll" onAction="#filterAll" styleClass="filter-btn-active" text="Semua" />
-                <Button fx:id="btnFilterExpenses" onAction="#filterExpenses" styleClass="filter-btn" text="Pengeluaran" />
-                <Button fx:id="btnFilterIncome" onAction="#filterIncome" styleClass="filter-btn" text="Pemasukan" />
-                <Button onAction="#showDatePicker" styleClass="btn-outline-small" text="📅 Rentang Tanggal" />
+            <HBox alignment="CENTER" prefHeight="39.0" prefWidth="444.0" spacing="8">
+                <Button fx:id="btnFilterAll" onAction="#filterAll" prefHeight="25.0" prefWidth="77.0" styleClass="filter-btn-active" text="Semua" />
+                <Button fx:id="btnFilterExpenses" onAction="#filterExpenses" prefHeight="25.0" prefWidth="107.0" styleClass="filter-btn" text="Pengeluaran" />
+                <Button fx:id="btnFilterIncome" onAction="#filterIncome" prefHeight="25.0" prefWidth="100.0" styleClass="filter-btn" text="Pemasukan" />
+                <Button onAction="#showDatePicker" prefHeight="25.0" prefWidth="136.0" styleClass="btn-outline-small" text="📅 Rentang Tanggal" />
             </HBox>
         </HBox>
 
@@ -36,10 +36,9 @@
             <HBox spacing="16" styleClass="table-header">
                 <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
                 <Label prefWidth="100" styleClass="col-header" text="TANGGAL" />
-                <Label styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
-                <Label prefWidth="120" styleClass="col-header" text="KATEGORI" />
-                <Label prefWidth="150" styleClass="col-header" text="JUMLAH" />
-                <Label prefWidth="70" text="" />
+                <Label maxWidth="Infinity" prefHeight="17.0" prefWidth="131.0" styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
+                <Label prefHeight="17.0" prefWidth="206.0" styleClass="col-header" text="KATEGORI" />
+                <Label prefHeight="17.0" prefWidth="144.0" styleClass="col-header" text="JUMLAH" />
             </HBox>
 
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="400" styleClass="table-scroll" VBox.vgrow="ALWAYS">
