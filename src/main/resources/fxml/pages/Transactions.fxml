@@ -36,7 +36,7 @@
             <HBox spacing="16" styleClass="table-header">
                 <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
                 <Label prefWidth="100" styleClass="col-header" text="TANGGAL" />
-                <Label styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
+                <Label styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" maxWidth="Infinity" />
                 <Label prefWidth="120" styleClass="col-header" text="KATEGORI" />
                 <Label prefWidth="150" styleClass="col-header" text="JUMLAH" />
                 <Label prefWidth="70" text="" />

@@ -63,7 +63,7 @@
                 <Label text="" prefWidth="36"/>
                 <Label text="AKUN" styleClass="col-header" HBox.hgrow="ALWAYS"/>
                 <Label text="STATUS" styleClass="col-header" prefWidth="100"/>
-                <Label text="SINKRONISASI TERAKHIR" styleClass="col-header" prefWidth="130"/>
+                <!-- <Label text="SINKRONISASI TERAKHIR" styleClass="col-header" prefWidth="130"/> -->
                 <Label text="SALDO" styleClass="col-header" prefWidth="160"/>
             </HBox>
 

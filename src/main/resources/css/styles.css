@@ -518,7 +518,26 @@
     -fx-font-size: 12px;
     -fx-text-fill: #8B7355;
 }
-.tx-icon { -fx-font-size: 18px; }
+.tx-icon {
+    -fx-font-size: 15px;
+    -fx-background-color: #EDE7DC;
+    -fx-background-radius: 50;
+    -fx-min-width: 32px;
+    -fx-min-height: 32px;
+    -fx-max-width: 32px;
+    -fx-max-height: 32px;
+    -fx-alignment: center;
+}
+.alloc-icon {
+    -fx-font-size: 14px;
+    -fx-background-color: #EDE7DC;
+    -fx-background-radius: 50;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-alignment: center;
+}
 .tx-desc {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
@@ -827,7 +846,16 @@
     -fx-border-width: 0 0 1 0;
     -fx-padding: 6 0;
 }
-.ledger-icon { -fx-font-size: 16px; }
+.ledger-icon {
+    -fx-font-size: 14px;
+    -fx-background-color: #EDE7DC;
+    -fx-background-radius: 50;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-alignment: center;
+}
 .ledger-desc { -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A0F05; }
 .ledger-date { -fx-font-size: 10px; -fx-text-fill: #8B7355; }
 .budget-mini-name { -fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #1A0F05; }

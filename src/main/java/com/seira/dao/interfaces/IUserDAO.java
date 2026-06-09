@@ -9,7 +9,7 @@ public interface IUserDAO {
     User findByEmail(String email);
 
     // update user ? 1 : 0
-    int updateProfile(int userId, String username, String email, String newPassword, String profilePhoto);
+    int updateProfile(int userId, String username, String email, String newPassword, String profilePhoto, String currency);
 
     // select by id
     User findById(int userId);

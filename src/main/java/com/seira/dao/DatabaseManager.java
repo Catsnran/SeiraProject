@@ -137,6 +137,7 @@ public class DatabaseManager {
                 {"Healthcare",    "EXPENSE", "#E74C3C", "💊"},
                 {"Education",     "EXPENSE", "#3498DB", "📚"},
                 {"Investing",     "EXPENSE", "#27AE60", "📈"},
+                {"Transfer",      "EXPENSE", "#4A90D9", "🔄"},
                 {"Salary",        "INCOME",  "#27AE60", "💼"},
                 {"Freelance",     "INCOME",  "#2ECC71", "💻"},
                 {"Dividend",      "INCOME",  "#1ABC9C", "💰"},

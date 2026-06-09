@@ -1,5 +1,6 @@
 package com.seira.utils;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -52,14 +53,17 @@ public class YahooFinanceService {
 
     public static class StockChartData {
         private final String symbol;
+        private final String currency;
         private final List<StockPricePoint> prices;
 
-        public StockChartData(String symbol, List<StockPricePoint> prices) {
+        public StockChartData(String symbol, String currency, List<StockPricePoint> prices) {
             this.symbol = symbol;
+            this.currency = currency;
             this.prices = prices;
         }
 
         public String getSymbol() { return symbol; }
+        public String getCurrency() { return currency; }
         public List<StockPricePoint> getPrices() { return prices; }
     }
 
@@ -117,8 +121,9 @@ public class YahooFinanceService {
     // fetch graphical data
     public static StockChartData getChartData(String symbol) {
         List<StockPricePoint> prices = new ArrayList<>();
+        String currency = "USD"; // default
         if (symbol == null || symbol.trim().isEmpty()) {
-            return new StockChartData("", prices);
+            return new StockChartData("", currency, prices);
         }
         try {
             String encodedSymbol = URLEncoder.encode(symbol.trim(), StandardCharsets.UTF_8);
@@ -140,10 +145,18 @@ public class YahooFinanceService {
                 JsonObject root = JsonParser.parseString(response.body()).getAsJsonObject();
                 if (root.has("chart")) {
                     JsonObject chart = root.getAsJsonObject("chart");
+                    Gson gson = new Gson();
+                    System.out.println(gson.toJson(root));
                     if (chart.has("result") && !chart.get("result").isJsonNull()) {
                         JsonArray resultArr = chart.getAsJsonArray("result");
                         if (resultArr.size() > 0) {
                             JsonObject result = resultArr.get(0).getAsJsonObject();
+                            if (result.has("meta")) {
+                                JsonObject meta = result.getAsJsonObject("meta");
+                                if (meta.has("currency")) {
+                                    currency = meta.get("currency").getAsString();
+                                }
+                            }
                             if (result.has("timestamp") && result.has("indicators")) {
                                 JsonArray timestamps = result.getAsJsonArray("timestamp");
                                 JsonObject indicators = result.getAsJsonObject("indicators");
@@ -173,6 +186,51 @@ public class YahooFinanceService {
         } catch (Exception e) {
             System.err.println("Gagal memanggil Yahoo Finance Chart API: " + e.getMessage());
         }
-        return new StockChartData(symbol, prices);
+        return new StockChartData(symbol, currency, prices);
+    }
+
+    private static double cachedRate = 16000.0;
+    private static long lastCacheTime = 0;
+
+    public static double getUsdIdrRate() {
+        long now = System.currentTimeMillis();
+        // Cache rate for 1 hour to avoid excessive calls
+        if (now - lastCacheTime < 3600000 && cachedRate > 0) {
+            return cachedRate;
+        }
+        try {
+            StockChartData data = getChartData("USDIDR=X");
+            if (!data.getPrices().isEmpty()) {
+                double rate = data.getPrices().get(data.getPrices().size() - 1).getPrice();
+                if (rate > 0) {
+                    cachedRate = rate;
+                    lastCacheTime = now;
+                    return rate;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Gagal mengambil kurs USD/IDR: " + e.getMessage());
+        }
+        return cachedRate;
+    }
+
+    public static double convertPrice(double price, String fromCurrency, String toCurrency) {
+        if (fromCurrency == null || toCurrency == null) {
+            return price;
+        }
+        fromCurrency = fromCurrency.toUpperCase();
+        toCurrency = toCurrency.toUpperCase();
+        if (fromCurrency.equals(toCurrency)) {
+            return price;
+        }
+
+        double rate = getUsdIdrRate();
+
+        if ("USD".equals(fromCurrency) && "IDR".equals(toCurrency)) {
+            return price * rate;
+        } else if ("IDR".equals(fromCurrency) && "USD".equals(toCurrency)) {
+            return price / rate;
+        }
+        return price; // fallback if currency is unsupported
     }
 }

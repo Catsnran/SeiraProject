@@ -74,9 +74,9 @@ public class UserDAO implements IUserDAO {
     }
 
     @Override
-    public int updateProfile(int userId, String username, String email, String newPassword, String profilePhoto) {
+    public int updateProfile(int userId, String username, String email, String newPassword, String profilePhoto, String currency) {
         try {
-            StringBuilder sql = new StringBuilder("UPDATE users SET username=?, email=?, profile_photo=?");
+            StringBuilder sql = new StringBuilder("UPDATE users SET username=?, email=?, profile_photo=?, currency=?");
             if (newPassword != null && !newPassword.isEmpty()) {
                 sql.append(", password_hash=?");
             }
@@ -86,8 +86,9 @@ public class UserDAO implements IUserDAO {
             ps.setString(1, username);
             ps.setString(2, email);
             ps.setString(3, profilePhoto);
+            ps.setString(4, currency);
 
-            int idx = 4;
+            int idx = 5;
             if (newPassword != null && !newPassword.isEmpty()) {
                 ps.setString(idx++, BCrypt.hashpw(newPassword, BCrypt.gensalt()));
                 this.passwordLength = newPassword.length();

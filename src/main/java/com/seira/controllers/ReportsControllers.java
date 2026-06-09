@@ -130,7 +130,7 @@ public class ReportsControllers {
         gc.setTextAlign(TextAlignment.CENTER);
         gc.setFill(Color.web("#2C1A0E"));
         gc.setFont(Font.font("System", FontWeight.BOLD, 11));
-        gc.fillText(FormatUtil.formatCurrency(peakVal), xs[peakIdx], ys[peakIdx] - 10);
+        gc.fillText(FormatUtil.formatIdr(peakVal), xs[peakIdx], ys[peakIdx] - 10);
 
         // Month labels
         gc.setFont(Font.font("System", 10));
@@ -185,7 +185,7 @@ public class ReportsControllers {
         String totalLabel = "TOTAL";
         gc.fillText(totalLabel, cx, cy - size * 0.04);
 
-        String totalAmt = FormatUtil.formatCurrency(total);
+        String totalAmt = FormatUtil.formatIdr(total);
         double fontSize = size * 0.105; // 21pt for size=200
         if (totalAmt.length() > 12) {
             fontSize = size * 0.075; // 15pt for large numbers (e.g. Rp 10.000.000)
@@ -196,7 +196,7 @@ public class ReportsControllers {
         gc.fillText(totalAmt, cx, cy + size * 0.08);
 
         donutChartPane.getChildren().add(canvas);
-        totalSpendingLabel.setText(FormatUtil.formatCurrency(total));
+        totalSpendingLabel.setText(FormatUtil.formatIdr(total));
 
         // Legend
         donutLegend.getChildren().clear();
@@ -213,7 +213,7 @@ public class ReportsControllers {
             Label nameLbl = new Label(name);
             nameLbl.getStyleClass().add("legend-name");
             HBox.setHgrow(nameLbl, Priority.ALWAYS);
-            Label valLbl = new Label(FormatUtil.formatCurrency(val));
+            Label valLbl = new Label(FormatUtil.formatIdr(val));
             valLbl.getStyleClass().add("legend-value");
             row.getChildren().addAll(dot, nameLbl, valLbl);
             donutLegend.getChildren().add(row);
@@ -238,11 +238,11 @@ public class ReportsControllers {
             monthLbl.getStyleClass().add("breakdown-month");
             monthLbl.setPrefWidth(120);
 
-            Label inLbl = new Label(FormatUtil.formatCurrency(income));
+            Label inLbl = new Label(FormatUtil.formatIdr(income));
             inLbl.getStyleClass().add("breakdown-income");
             inLbl.setPrefWidth(140);
 
-            Label outLbl = new Label(FormatUtil.formatCurrency(expense));
+            Label outLbl = new Label(FormatUtil.formatIdr(expense));
             outLbl.getStyleClass().add("breakdown-expense");
             outLbl.setPrefWidth(140);
 

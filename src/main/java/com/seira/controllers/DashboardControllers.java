@@ -97,9 +97,9 @@ public class DashboardControllers {
         double liquidAssets = DAOFactory.getPaymentMethodDAO().getLiquidityExcludingType(userId, "INVESTMENT");
 
         // Net Worth = total semua saldo akun
-        netWorthLabel.setText(FormatUtil.formatCurrency(liquidity));
-        liquidAssetsLabel.setText(FormatUtil.formatCurrency(liquidAssets));
-        investmentsLabel.setText(FormatUtil.formatCurrency(investments));
+        netWorthLabel.setText(FormatUtil.formatIdr(liquidity));
+        liquidAssetsLabel.setText(FormatUtil.formatIdr(liquidAssets));
+        investmentsLabel.setText(FormatUtil.formatIdr(investments));
 
         double prevNet = prevIncome - prevExpense;
         if (prevNet != 0) {
@@ -112,8 +112,8 @@ public class DashboardControllers {
         }
 
         // Monthly cards
-        monthlyIncomeLabel.setText(FormatUtil.formatCurrency(income));
-        monthlyExpenseLabel.setText(FormatUtil.formatCurrency(expense));
+        monthlyIncomeLabel.setText(FormatUtil.formatIdr(income));
+        monthlyExpenseLabel.setText(FormatUtil.formatIdr(expense));
 
         double incPct = prevIncome > 0 ? income / (prevIncome * 1.2) : (income > 0 ? 0.75 : 0);
         incomeProgress.setProgress(Math.min(incPct, 1.0));
@@ -140,10 +140,10 @@ public class DashboardControllers {
 
         if (diff < 0) {
             burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata kuartal.",
-                    FormatUtil.formatCurrency(Math.abs(diff))));
+                    FormatUtil.formatIdr(Math.abs(diff))));
         } else {
             burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari bulan lalu.",
-                    FormatUtil.formatCurrency(diff)));
+                    FormatUtil.formatIdr(diff)));
         }
 
         // Draw charts after layout (bind to width)
@@ -253,7 +253,7 @@ public class DashboardControllers {
         gc.strokeArc(cx - r, cy - r, r * 2, r * 2, 90, -angle, ArcType.OPEN);
 
         // Center: amount
-        String amtText = FormatUtil.formatCurrency(dailyBurn);
+        String amtText = FormatUtil.formatIdr(dailyBurn);
         gc.setFill(Color.web("#2C1A0E"));
         gc.setFont(Font.font("System", FontWeight.BOLD, size * 0.13));
         // Approximate centering
@@ -287,7 +287,7 @@ public class DashboardControllers {
             topRow.getChildren().addAll(name, pctLbl);
 
             Label amtLbl = new Label(
-                    FormatUtil.formatCurrency(b.getSpent()) + " / " + FormatUtil.formatCurrency(b.getAmount()));
+                    FormatUtil.formatIdr(b.getSpent()) + " / " + FormatUtil.formatIdr(b.getAmount()));
             amtLbl.getStyleClass().add("budget-mini-amt");
 
             ProgressBar pb = new ProgressBar(Math.min(b.getPercentage() / 100.0, 1.0));
@@ -331,7 +331,7 @@ public class DashboardControllers {
             dateLbl.getStyleClass().add("ledger-date");
             info.getChildren().addAll(descLbl, dateLbl);
 
-            Label amtLbl = new Label((t.isExpense() ? "-" : "+") + FormatUtil.formatCurrency(t.getAmount()));
+            Label amtLbl = new Label((t.isExpense() ? "-" : "+") + FormatUtil.formatIdr(t.getAmount()));
             amtLbl.getStyleClass().add(t.isExpense() ? "amount-expense" : "amount-income");
 
             row.getChildren().addAll(iconLbl, info, amtLbl);
@@ -458,11 +458,18 @@ public class DashboardControllers {
 
                 double latest = prices.get(prices.size() - 1).getPrice();
                 double first = prices.get(0).getPrice();
-                double pctChange = ((latest - first) / first) * 100;
                 
-                String changeText = String.format("%s — Rp %,.0f (%+.1f%% bulan ini)", 
-                    symbol, latest, pctChange);
-                stockStatusLabel.setText(changeText.replace(',', '.'));
+                String stockCurrency = data.getCurrency();
+                String userCurrency = SessionManager.getCurrentUser() != null ? SessionManager.getCurrentUser().getCurrency() : "IDR";
+                double latestUser = YahooFinanceService.convertPrice(latest, stockCurrency, userCurrency);
+                double firstUser = YahooFinanceService.convertPrice(first, stockCurrency, userCurrency);
+                
+                double pctChange = ((latestUser - firstUser) / firstUser) * 100;
+                
+                String formattedPrice = FormatUtil.formatCurrency(latestUser);
+                String changeText = String.format("%s — %s (%+.1f%% bulan ini)", 
+                    symbol, formattedPrice, pctChange);
+                stockStatusLabel.setText(changeText);
                 if (pctChange >= 0) {
                     stockStatusLabel.setStyle("-fx-text-fill: #27AE60; -fx-font-weight: bold;");
                 } else {
