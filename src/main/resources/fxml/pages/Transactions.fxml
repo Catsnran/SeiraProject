@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<HBox styleClass="page-hbox" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.TransactionsControllers">
+<HBox styleClass="page-hbox" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.seira.controllers.TransactionsControllers">
 
     <!-- Main ledger -->
     <VBox spacing="10.0" HBox.hgrow="ALWAYS">
@@ -16,15 +12,15 @@
 
         <!-- Header -->
         <HBox alignment="CENTER_LEFT">
-            <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <VBox prefHeight="39.0" prefWidth="239.0" spacing="4" HBox.hgrow="ALWAYS">
                 <Label styleClass="page-title" text="Transaksi" />
-                <Label styleClass="page-subtitle" text="Mendokumentasikan perjalananmu menuju kejernihan fiskal." />
+                <Label prefHeight="17.0" prefWidth="213.0" styleClass="page-subtitle" text="Mendokumentasikan transaksimu." />
             </VBox>
-            <HBox alignment="CENTER" spacing="8">
-                <Button fx:id="btnFilterAll" onAction="#filterAll" styleClass="filter-btn-active" text="Semua" />
-                <Button fx:id="btnFilterExpenses" onAction="#filterExpenses" styleClass="filter-btn" text="Pengeluaran" />
-                <Button fx:id="btnFilterIncome" onAction="#filterIncome" styleClass="filter-btn" text="Pemasukan" />
-                <Button onAction="#showDatePicker" styleClass="btn-outline-small" text="📅 Rentang Tanggal" />
+            <HBox alignment="CENTER" prefHeight="39.0" prefWidth="439.0" spacing="8">
+                <Button fx:id="btnFilterAll" onAction="#filterAll" prefHeight="25.0" prefWidth="84.0" styleClass="filter-btn-active" text="Semua" />
+                <Button fx:id="btnFilterExpenses" onAction="#filterExpenses" prefHeight="25.0" prefWidth="102.0" styleClass="filter-btn" text="Pengeluaran" />
+                <Button fx:id="btnFilterIncome" onAction="#filterIncome" prefHeight="25.0" prefWidth="96.0" styleClass="filter-btn" text="Pemasukan" />
+                <Button onAction="#showDatePicker" prefHeight="25.0" prefWidth="133.0" styleClass="btn-outline-small" text="📅 Rentang Tanggal" />
             </HBox>
         </HBox>
       <HBox fx:id="searchInfo" alignment="CENTER_LEFT" prefWidth="200.0" visible="false">
@@ -40,18 +36,17 @@
         <VBox spacing="0" styleClass="card" VBox.vgrow="ALWAYS">
             <HBox alignment="CENTER_LEFT" styleClass="ledger-header">
                 <padding><Insets bottom="14" left="20" right="20" top="14" /></padding>
-                <Label styleClass="card-title" text="Buku Besar" HBox.hgrow="ALWAYS" />
+                <Label prefHeight="17.0" prefWidth="545.0" styleClass="card-title" text="Buku Besar" HBox.hgrow="ALWAYS" />
                 <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Ekspor CSV" />
             </HBox>
 
             <!-- Column headers -->
             <HBox spacing="16" styleClass="table-header">
                 <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
-                <Label prefWidth="100" styleClass="col-header" text="TANGGAL" />
-                <Label styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
-                <Label prefWidth="120" styleClass="col-header" text="KATEGORI" />
-                <Label prefWidth="150" styleClass="col-header" text="JUMLAH" />
-                <Label prefWidth="70" text="" />
+                <Label prefHeight="17.0" prefWidth="131.0" styleClass="col-header" text="TANGGAL" />
+                <Label prefHeight="17.0" prefWidth="193.0" styleClass="col-header" text="DESKRIPSI" HBox.hgrow="ALWAYS" />
+                <Label prefHeight="17.0" prefWidth="200.0" styleClass="col-header" text="KATEGORI" />
+                <Label prefHeight="17.0" prefWidth="54.0" styleClass="col-header" text="JUMLAH" />
             </HBox>
 
             <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefHeight="400" styleClass="table-scroll" VBox.vgrow="ALWAYS">
@@ -68,7 +63,7 @@
     <!-- Wealth Narrative sidebar -->
     <VBox prefWidth="240" spacing="0">
         <padding><Insets bottom="32" left="0" right="24" top="32" /></padding>
-        <VBox spacing="16" styleClass="card-accent" VBox.vgrow="ALWAYS">
+        <VBox prefHeight="570.0" prefWidth="216.0" spacing="16" styleClass="card-accent" VBox.vgrow="ALWAYS">
             <padding><Insets bottom="24" left="20" right="20" top="24" /></padding>
             <HBox alignment="CENTER_LEFT" spacing="6">
                 <Label styleClass="accent-icon" text="✦" />
