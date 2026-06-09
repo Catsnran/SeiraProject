@@ -281,10 +281,8 @@ public class AddTransactionControllers {
             String desc = notesArea.getText().trim();
             if (desc.isEmpty()) desc = "Transfer ke " + to.getName();
 
-            // Buat 2 transaksi: EXPENSE dari akun asal, INCOME ke akun tujuan
-            // Gunakan kategori "Other" untuk transfer
-            List<Category> allCats = DAOFactory.getCategoryDAO().findAll(userId, "EXPENSE");
-            int catId = allCats.isEmpty() ? 1 : allCats.get(allCats.size() - 1).getId();
+            // Dapatkan atau buat kategori khusus "Transfer" agar tidak salah masuk ke "Transport"
+            int catId = getOrCreateTransferCategory();
 
             Transaction out = new Transaction();
             out.setUserId(userId); out.setDescription(desc);
@@ -352,5 +350,31 @@ public class AddTransactionControllers {
     private void showError(String msg) {
         errorLabel.setText(msg);
         errorLabel.setVisible(true);
+    }
+
+    private int getOrCreateTransferCategory() {
+        List<Category> cats = DAOFactory.getCategoryDAO().findAll(userId, null);
+        for (Category c : cats) {
+            if ("Transfer".equalsIgnoreCase(c.getName())) {
+                return c.getId();
+            }
+        }
+        Category transferCat = new Category();
+        transferCat.setUserId(userId);
+        transferCat.setName("Transfer");
+        transferCat.setType("EXPENSE");
+        transferCat.setColor("#4A90D9");
+        transferCat.setIcon("🔄");
+        boolean added = DAOFactory.getCategoryDAO().add(transferCat);
+        if (added) {
+            List<Category> updatedCats = DAOFactory.getCategoryDAO().findAll(userId, null);
+            for (Category c : updatedCats) {
+                if ("Transfer".equalsIgnoreCase(c.getName())) {
+                    return c.getId();
+                }
+            }
+        }
+        if (!cats.isEmpty()) return cats.get(0).getId();
+        return 1;
     }
 }

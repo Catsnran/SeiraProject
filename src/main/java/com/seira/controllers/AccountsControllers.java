@@ -29,10 +29,14 @@ import java.util.List;
 
 public class AccountsControllers {
 
-    @FXML private Label totalLiquidityLabel, liquidityChangeLabel;
-    @FXML private HBox accountCardsBox;
-    @FXML private VBox recentAllocationsList;
-    @FXML private Pane diversificationBar;
+    @FXML
+    private Label totalLiquidityLabel, liquidityChangeLabel;
+    @FXML
+    private HBox accountCardsBox;
+    @FXML
+    private VBox recentAllocationsList;
+    @FXML
+    private Pane diversificationBar;
 
     private int userId;
 
@@ -46,11 +50,11 @@ public class AccountsControllers {
         List<PaymentMethod> methods = DAOFactory.getPaymentMethodDAO().findAll(userId);
         double total = methods.stream().mapToDouble(pm -> pm.getBalance().doubleValue()).sum();
 
-        totalLiquidityLabel.setText(FormatUtil.formatCurrency(total));
+        totalLiquidityLabel.setText(FormatUtil.formatIdr(total));
         liquidityChangeLabel.setText("+2.4% dari bulan lalu");
 
         accountCardsBox.getChildren().clear();
-        String[] typeColors = {"#C87941", "#4A90D9", "#27AE60", "#9B59B6", "#E07B54"};
+        String[] typeColors = { "#C87941", "#4A90D9", "#27AE60", "#9B59B6", "#E07B54" };
         for (int i = 0; i < methods.size(); i++) {
             accountCardsBox.getChildren().add(buildAccountCard(methods.get(i), typeColors[i % typeColors.length]));
         }
@@ -58,7 +62,8 @@ public class AccountsControllers {
         // Draw stock assets cards
         List<StockAsset> stocks = DAOFactory.getStockAssetDAO().findAll(userId);
         for (int i = 0; i < stocks.size(); i++) {
-            accountCardsBox.getChildren().add(buildStockCard(stocks.get(i), typeColors[(methods.size() + i) % typeColors.length]));
+            accountCardsBox.getChildren()
+                    .add(buildStockCard(stocks.get(i), typeColors[(methods.size() + i) % typeColors.length]));
         }
 
         if (methods.isEmpty() && stocks.isEmpty()) {
@@ -78,18 +83,20 @@ public class AccountsControllers {
         card.getStyleClass().add("account-card");
         card.setPadding(new Insets(20));
         card.setPrefWidth(210);
-        card.setStyle("-fx-background-color: #FDFAF5; -fx-background-radius: 14; -fx-border-color: #E8DDD0; -fx-border-radius: 14; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+        card.setStyle(
+                "-fx-background-color: #FDFAF5; -fx-background-radius: 14; -fx-border-color: #E8DDD0; -fx-border-radius: 14; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
 
         // Top: icon + type badge
         HBox topRow = new HBox();
         topRow.setAlignment(Pos.CENTER_LEFT);
         Label iconLbl = new Label(getTypeIcon(pm.getType()));
-        iconLbl.setStyle("-fx-font-size: 22;");
-        HBox.setHgrow(iconLbl, Priority.ALWAYS);
+        iconLbl.setStyle("-fx-font-size: 18; -fx-background-color: " + color + "15; -fx-background-radius: 50; -fx-min-width: 38; -fx-min-height: 38; -fx-max-width: 38; -fx-max-height: 38; -fx-alignment: center;");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         Label typeLbl = new Label(pm.getType());
         typeLbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 9; -fx-font-weight: bold; " +
                 "-fx-background-color: " + color + "22; -fx-background-radius: 4; -fx-padding: 2 7;");
-        topRow.getChildren().addAll(iconLbl, typeLbl);
+        topRow.getChildren().addAll(iconLbl, spacer, typeLbl);
 
         // Name + desc
         Label nameLbl = new Label(pm.getName());
@@ -98,14 +105,15 @@ public class AccountsControllers {
         descLbl.setStyle("-fx-font-size: 11; -fx-text-fill: #8B7355;");
 
         // Balance with colored accent
-        Label balLbl = new Label(FormatUtil.formatCurrency(pm.getBalance()));
+        Label balLbl = new Label(FormatUtil.formatIdr(pm.getBalance()));
         balLbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 19; -fx-font-weight: bold;");
 
         // Subtle accent bar at bottom
         Region accentBar = new Region();
         accentBar.setPrefHeight(3);
         accentBar.setMaxWidth(Double.MAX_VALUE);
-        accentBar.setStyle("-fx-background-color: linear-gradient(to right, " + color + ", " + color + "44); -fx-background-radius: 2;");
+        accentBar.setStyle("-fx-background-color: linear-gradient(to right, " + color + ", " + color
+                + "44); -fx-background-radius: 2;");
 
         // Actions
         HBox actions = new HBox(6);
@@ -127,21 +135,24 @@ public class AccountsControllers {
 
     private void drawDiversificationBar(List<PaymentMethod> methods, double total) {
         diversificationBar.getChildren().clear();
-        diversificationBar.widthProperty().addListener((o,v,n) -> drawBar(methods, total));
+        diversificationBar.widthProperty().addListener((o, v, n) -> drawBar(methods, total));
         drawBar(methods, total);
     }
 
     private void drawBar(List<PaymentMethod> methods, double total) {
         diversificationBar.getChildren().clear();
-        if (total == 0 || methods.isEmpty()) return;
+        if (total == 0 || methods.isEmpty())
+            return;
         double w = diversificationBar.getWidth();
-        if (w < 10) w = 400;
+        if (w < 10)
+            w = 400;
         double h = diversificationBar.getHeight();
-        if (h < 4) h = 10;
+        if (h < 4)
+            h = 10;
 
         Canvas c = new Canvas(w, h);
         GraphicsContext gc = c.getGraphicsContext2D();
-        String[] colors = {"#8B4513", "#4A90D9", "#27AE60", "#9B59B6", "#E07B54"};
+        String[] colors = { "#8B4513", "#4A90D9", "#27AE60", "#9B59B6", "#E07B54" };
         double x = 0;
         for (int i = 0; i < methods.size(); i++) {
             double pct = methods.get(i).getBalance().doubleValue() / total;
@@ -155,7 +166,7 @@ public class AccountsControllers {
 
     private void buildRecentAllocations(List<PaymentMethod> methods) {
         recentAllocationsList.getChildren().clear();
-        String[] times = {"2 menit lalu", "1 jam lalu", "Baru saja", "5 menit lalu", "30 menit lalu"};
+        String[] times = { "2 menit lalu", "1 jam lalu", "Baru saja", "5 menit lalu", "30 menit lalu" };
         for (int i = 0; i < methods.size(); i++) {
             PaymentMethod pm = methods.get(i);
             HBox row = new HBox(16);
@@ -164,25 +175,25 @@ public class AccountsControllers {
             row.setAlignment(Pos.CENTER_LEFT);
 
             Label iconLbl = new Label(getTypeIcon(pm.getType()));
-            iconLbl.setPrefWidth(36);
+            iconLbl.getStyleClass().add("alloc-icon");
 
             Label nameLbl = new Label(pm.getName());
             nameLbl.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #1A0F05;");
             HBox.setHgrow(nameLbl, Priority.ALWAYS);
 
-            boolean syncing = i % 4 == 2;
-            Label statusLbl = new Label(syncing ? "● Syncing" : "● Active");
-            statusLbl.setStyle("-fx-text-fill: " + (syncing ? "#E07B54" : "#27AE60") + "; -fx-font-size: 12;");
+            // boolean syncing = i % 4 == 100;
+            Label statusLbl = new Label("● Active");
+            statusLbl.setStyle("-fx-text-fill: " + ("#27AE60") + "; -fx-font-size: 12;");
             statusLbl.setPrefWidth(100);
 
-            Label syncLbl = new Label(times[i % times.length]);
-            syncLbl.setStyle("-fx-font-size: 12; -fx-text-fill: #8B7355;");
-            syncLbl.setPrefWidth(130);
+            // Label syncLbl = new Label(times[i % times.length]);
+            // syncLbl.setStyle("-fx-font-size: 12; -fx-text-fill: #8B7355;");
+            // syncLbl.setPrefWidth(130);
 
-            Label balLbl = new Label(FormatUtil.formatCurrency(pm.getBalance()));
+            Label balLbl = new Label(FormatUtil.formatIdr(pm.getBalance()));
             balLbl.setStyle("-fx-font-size: 13; -fx-font-weight: bold; -fx-text-fill: #2C1A0E;");
 
-            row.getChildren().addAll(iconLbl, nameLbl, statusLbl, syncLbl, balLbl);
+            row.getChildren().addAll(iconLbl, nameLbl, statusLbl,balLbl);
             recentAllocationsList.getChildren().add(row);
         }
         if (methods.isEmpty()) {
@@ -191,11 +202,13 @@ public class AccountsControllers {
             empty.setPadding(new Insets(16, 20, 16, 20));
             recentAllocationsList.getChildren().add(empty);
         }
-    }    @FXML
+    }
+
+    @FXML
     private void openAddAccount() {
         TextField nameField = StyledDialog.field("Nama akun (mis: BCA Utama)");
         ComboBox<String> typeCombo = StyledDialog.combo();
-        typeCombo.getItems().addAll("CASH", "M-BANKING", "SAVINGS", "E-WALLET", "INVESTMENT", "Saham");
+        typeCombo.getItems().addAll("CASH", "M-BANKING", "SAVINGS", "E-WALLET", "Saham");
         typeCombo.setValue("M-BANKING");
         TextField balanceField = StyledDialog.field("Saldo awal (mis: 5000000)");
         TextField descField = StyledDialog.field("Deskripsi (mis: Rekening utama)");
@@ -209,7 +222,7 @@ public class AccountsControllers {
         // Saham specific fields
         TextField searchField = StyledDialog.field("Cari saham (mis: TSLA, BBCA.JK)");
         VBox stockSearchGroup = StyledDialog.fieldGroup("CARI SAHAM", searchField);
-        
+
         ListView<YahooFinanceService.StockSearchResult> suggestionList = new ListView<>();
         suggestionList.setPrefHeight(100);
         suggestionList.setVisible(false);
@@ -218,20 +231,27 @@ public class AccountsControllers {
         TextField lotField = StyledDialog.field("Jumlah Lot (minimal 1)");
         VBox lotGroup = StyledDialog.fieldGroup("JUMLAH LOT", lotField);
 
-        stockSearchGroup.setVisible(false); stockSearchGroup.setManaged(false);
-        lotGroup.setVisible(false); lotGroup.setManaged(false);
+        stockSearchGroup.setVisible(false);
+        stockSearchGroup.setManaged(false);
+        lotGroup.setVisible(false);
+        lotGroup.setManaged(false);
 
-        final String[] selectedSymbol = {null};
-        final String[] selectedName = {null};
+        final String[] selectedSymbol = { null };
+        final String[] selectedName = { null };
 
         typeCombo.valueProperty().addListener((obs, oldVal, newVal) -> {
             boolean isStock = "Saham".equalsIgnoreCase(newVal);
-            nameGroup.setVisible(!isStock); nameGroup.setManaged(!isStock);
-            balanceGroup.setVisible(!isStock); balanceGroup.setManaged(!isStock);
-            descGroup.setVisible(!isStock); descGroup.setManaged(!isStock);
+            nameGroup.setVisible(!isStock);
+            nameGroup.setManaged(!isStock);
+            balanceGroup.setVisible(!isStock);
+            balanceGroup.setManaged(!isStock);
+            descGroup.setVisible(!isStock);
+            descGroup.setManaged(!isStock);
 
-            stockSearchGroup.setVisible(isStock); stockSearchGroup.setManaged(isStock);
-            lotGroup.setVisible(isStock); lotGroup.setManaged(isStock);
+            stockSearchGroup.setVisible(isStock);
+            stockSearchGroup.setManaged(isStock);
+            lotGroup.setVisible(isStock);
+            lotGroup.setManaged(isStock);
             if (!isStock) {
                 suggestionList.setVisible(false);
                 suggestionList.setManaged(false);
@@ -239,7 +259,7 @@ public class AccountsControllers {
         });
 
         // Search Autocomplete with Debounce logic
-        final Timeline[] searchDebounce = {null};
+        final Timeline[] searchDebounce = { null };
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (searchDebounce[0] != null) {
                 searchDebounce[0].stop();
@@ -260,16 +280,16 @@ public class AccountsControllers {
 
             searchDebounce[0] = new Timeline(new KeyFrame(Duration.millis(350), event -> {
                 CompletableFuture.supplyAsync(() -> YahooFinanceService.searchStocks(query))
-                    .thenAcceptAsync(results -> {
-                        if (results.isEmpty()) {
-                            suggestionList.setVisible(false);
-                            suggestionList.setManaged(false);
-                        } else {
-                            suggestionList.getItems().setAll(results);
-                            suggestionList.setVisible(true);
-                            suggestionList.setManaged(true);
-                        }
-                    }, Platform::runLater);
+                        .thenAcceptAsync(results -> {
+                            if (results.isEmpty()) {
+                                suggestionList.setVisible(false);
+                                suggestionList.setManaged(false);
+                            } else {
+                                suggestionList.getItems().setAll(results);
+                                suggestionList.setVisible(true);
+                                suggestionList.setManaged(true);
+                            }
+                        }, Platform::runLater);
             }));
             searchDebounce[0].play();
         });
@@ -298,8 +318,7 @@ public class AccountsControllers {
                         stockSearchGroup,
                         suggestionList,
                         lotGroup,
-                        errLbl
-                )
+                        errLbl)
                 .onConfirm(() -> {
                     String type = typeCombo.getValue();
                     if ("Saham".equalsIgnoreCase(type)) {
@@ -323,9 +342,9 @@ public class AccountsControllers {
                             sa.setStockSymbol(selectedSymbol[0]);
                             sa.setStockName(selectedName[0]);
                             sa.setTotalLot(lot);
-                            
+
                             DAOFactory.getStockAssetDAO().add(sa);
-                            
+
                             searchField.getScene().getWindow().hide();
                             loadData();
                             Toast.showSuccess("Aset saham berhasil ditambahkan ✓");
@@ -335,12 +354,21 @@ public class AccountsControllers {
                     } else {
                         String name = nameField.getText().trim();
                         String balText = balanceField.getText().trim();
-                        if (name.isEmpty()) { StyledDialog.showError(errLbl, "Nama akun tidak boleh kosong."); return; }
+                        if (name.isEmpty()) {
+                            StyledDialog.showError(errLbl, "Nama akun tidak boleh kosong.");
+                            return;
+                        }
                         try {
                             BigDecimal bal = new BigDecimal(balText.isEmpty() ? "0" : balText);
+                            if(bal.signum() == -1){
+                                StyledDialog.showError(errLbl, "Bro, akun lu kok bisa kurang dari 0 jir");
+                                return;
+                            }
                             PaymentMethod pm = new PaymentMethod();
-                            pm.setUserId(userId); pm.setName(name);
-                            pm.setType(type); pm.setBalance(bal);
+                            pm.setUserId(userId);
+                            pm.setName(name);
+                            pm.setType(type);
+                            pm.setBalance(bal);
                             pm.setDescription(descField.getText().trim());
                             DAOFactory.getPaymentMethodDAO().add(pm);
                             nameField.getScene().getWindow().hide();
@@ -373,8 +401,7 @@ public class AccountsControllers {
                         StyledDialog.fieldGroup("NAMA AKUN", nameField),
                         StyledDialog.fieldGroup("DESKRIPSI", descField),
                         StyledDialog.fieldGroup("SALDO (Rp)", balField),
-                        errLbl
-                )
+                        errLbl)
                 .onConfirm(() -> {
                     try {
                         pm.setName(nameField.getText().trim());
@@ -407,7 +434,8 @@ public class AccountsControllers {
     }
 
     private String getTypeIcon(String type) {
-        if (type == null) return "💳";
+        if (type == null)
+            return "💳";
         return switch (type.toUpperCase()) {
             case "CASH" -> "💵";
             case "M-BANKING" -> "🏦";
@@ -423,17 +451,19 @@ public class AccountsControllers {
         card.getStyleClass().add("account-card");
         card.setPadding(new Insets(20));
         card.setPrefWidth(210);
-        card.setStyle("-fx-background-color: #FDFAF5; -fx-background-radius: 14; -fx-border-color: #E8DDD0; -fx-border-radius: 14; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
+        card.setStyle(
+                "-fx-background-color: #FDFAF5; -fx-background-radius: 14; -fx-border-color: #E8DDD0; -fx-border-radius: 14; -fx-border-width: 1; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 8, 0, 0, 2);");
 
         HBox topRow = new HBox();
         topRow.setAlignment(Pos.CENTER_LEFT);
         Label iconLbl = new Label("📈");
-        iconLbl.setStyle("-fx-font-size: 22;");
-        HBox.setHgrow(iconLbl, Priority.ALWAYS);
+        iconLbl.setStyle("-fx-font-size: 18; -fx-background-color: " + color + "15; -fx-background-radius: 50; -fx-min-width: 38; -fx-min-height: 38; -fx-max-width: 38; -fx-max-height: 38; -fx-alignment: center;");
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
         Label typeLbl = new Label("SAHAM");
         typeLbl.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 9; -fx-font-weight: bold; " +
                 "-fx-background-color: " + color + "22; -fx-background-radius: 4; -fx-padding: 2 7;");
-        topRow.getChildren().addAll(iconLbl, typeLbl);
+        topRow.getChildren().addAll(iconLbl, spacer, typeLbl);
 
         Label nameLbl = new Label(sa.getStockSymbol());
         nameLbl.setStyle("-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1A0F05;");
@@ -447,7 +477,8 @@ public class AccountsControllers {
         Region accentBar = new Region();
         accentBar.setPrefHeight(3);
         accentBar.setMaxWidth(Double.MAX_VALUE);
-        accentBar.setStyle("-fx-background-color: linear-gradient(to right, " + color + ", " + color + "44); -fx-background-radius: 2;");
+        accentBar.setStyle("-fx-background-color: linear-gradient(to right, " + color + ", " + color
+                + "44); -fx-background-radius: 2;");
 
         HBox actions = new HBox(6);
         Button delBtn = new Button("Hapus");
@@ -463,7 +494,12 @@ public class AccountsControllers {
             YahooFinanceService.StockChartData data = YahooFinanceService.getChartData(sa.getStockSymbol());
             List<YahooFinanceService.StockPricePoint> prices = data.getPrices();
             if (!prices.isEmpty()) {
-                return prices.get(prices.size() - 1).getPrice();
+                double rawPrice = prices.get(prices.size() - 1).getPrice();
+                String stockCurrency = data.getCurrency();
+                String userCurrency = SessionManager.getCurrentUser() != null
+                        ? SessionManager.getCurrentUser().getCurrency()
+                        : "IDR";
+                return YahooFinanceService.convertPrice(rawPrice, stockCurrency, userCurrency);
             }
             return 0.0;
         }).thenAcceptAsync(price -> {
@@ -492,22 +528,28 @@ public class AccountsControllers {
     private void updateTotalLiquidity() {
         double pmTotal = DAOFactory.getPaymentMethodDAO().findAll(userId).stream()
                 .mapToDouble(pm -> pm.getBalance().doubleValue()).sum();
-        
+
         List<StockAsset> stocks = DAOFactory.getStockAssetDAO().findAll(userId);
-        
+
         CompletableFuture.supplyAsync(() -> {
             double stockTotal = 0;
+            String userCurrency = SessionManager.getCurrentUser() != null
+                    ? SessionManager.getCurrentUser().getCurrency()
+                    : "IDR";
             for (StockAsset sa : stocks) {
                 YahooFinanceService.StockChartData data = YahooFinanceService.getChartData(sa.getStockSymbol());
                 List<YahooFinanceService.StockPricePoint> prices = data.getPrices();
                 if (!prices.isEmpty()) {
-                    double price = prices.get(prices.size() - 1).getPrice();
+                    double rawPrice = prices.get(prices.size() - 1).getPrice();
+                    String stockCurrency = data.getCurrency();
+                    double price = YahooFinanceService.convertPrice(rawPrice, stockCurrency, userCurrency);
                     stockTotal += price * sa.getTotalLot() * 100;
                 }
             }
             return stockTotal;
         }).thenAcceptAsync(stockTotal -> {
-            totalLiquidityLabel.setText(FormatUtil.formatCurrency(pmTotal + stockTotal));
+            double pmTotalConverted = FormatUtil.convertIdrToUserCurrency(pmTotal);
+            totalLiquidityLabel.setText(FormatUtil.formatCurrency(pmTotalConverted + stockTotal));
         }, Platform::runLater);
     }
 }

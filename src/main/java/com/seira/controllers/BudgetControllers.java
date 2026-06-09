@@ -50,8 +50,8 @@ public class BudgetControllers {
         double liquidity = DAOFactory.getPaymentMethodDAO().getTotalLiquidity(userId);
         double remaining = Math.max(liquidity - totalAlloc, 0);
 
-        totalAllocatedLabel.setText(FormatUtil.formatCurrency(totalAlloc));
-        remainingLabel.setText(FormatUtil.formatCurrency(remaining));
+        totalAllocatedLabel.setText(FormatUtil.formatIdr(totalAlloc));
+        remainingLabel.setText(FormatUtil.formatIdr(remaining));
 
         double overallPct = totalAlloc > 0 ? totalSpent / totalAlloc : 0;
         drawPaceChart(overallPct);
@@ -139,9 +139,9 @@ public class BudgetControllers {
         // Amount row
         HBox amtRow = new HBox(0);
         amtRow.setAlignment(Pos.CENTER_LEFT);
-        Label spentLbl = new Label(FormatUtil.formatCurrency(b.getSpent()));
+        Label spentLbl = new Label(FormatUtil.formatIdr(b.getSpent()));
         spentLbl.setStyle("-fx-font-size: 17; -fx-font-weight: bold; -fx-text-fill: #1A0F05;");
-        Label sepLbl = new Label(" / " + FormatUtil.formatCurrency(b.getAmount()));
+        Label sepLbl = new Label(" / " + FormatUtil.formatIdr(b.getAmount()));
         sepLbl.setStyle("-fx-font-size: 13; -fx-text-fill: #8B7355;");
         amtRow.getChildren().addAll(spentLbl, sepLbl);
 
@@ -166,8 +166,8 @@ public class BudgetControllers {
         HBox bottomRow = new HBox(8);
         bottomRow.setAlignment(Pos.CENTER_LEFT);
         String remainingStr = b.getRemaining().compareTo(BigDecimal.ZERO) >= 0
-                ? "Sisa " + FormatUtil.formatCurrency(b.getRemaining())
-                : "Melebihi " + FormatUtil.formatCurrency(b.getRemaining().abs());
+                ? "Sisa " + FormatUtil.formatIdr(b.getRemaining())
+                : "Melebihi " + FormatUtil.formatIdr(b.getRemaining().abs());
         Label remainLbl = new Label(remainingStr);
         remainLbl.setStyle("-fx-font-size: 11; -fx-text-fill: " + (b.getRemaining().compareTo(BigDecimal.ZERO) >= 0 ? "#27AE60" : "#C0392B") + ";");
         HBox.setHgrow(remainLbl, Priority.ALWAYS);

@@ -109,7 +109,7 @@ public class TransactionsControllers {
         catLbl.setPrefWidth(120);
 
         // Amount
-        Label amtLbl = new Label((t.isExpense() ? "-" : "+") + FormatUtil.formatCurrency(t.getAmount()));
+        Label amtLbl = new Label((t.isExpense() ? "-" : "+") + FormatUtil.formatIdr(t.getAmount()));
         amtLbl.getStyleClass().add(t.isExpense() ? "amount-expense" : "amount-income");
         amtLbl.setPrefWidth(150);
         amtLbl.setAlignment(Pos.CENTER_RIGHT);
@@ -271,9 +271,9 @@ public class TransactionsControllers {
         if (income == 0 && expense == 0) {
             text = "Mulai tambahkan transaksi untuk melihat narasi keuangan personalmu. Setiap entri menceritakan kisah finansialmu.";
         } else if (savings > 0) {
-            text = String.format("Posisi keuanganmu bulan ini menunjukkan surplus sebesar %s dengan tingkat tabungan %.1f%%. Pola pengeluaranmu mencerminkan disiplin finansial yang sehat.", FormatUtil.formatCurrency(savings), rate);
+            text = String.format("Posisi keuanganmu bulan ini menunjukkan surplus sebesar %s dengan tingkat tabungan %.1f%%. Pola pengeluaranmu mencerminkan disiplin finansial yang sehat.", FormatUtil.formatIdr(savings), rate);
         } else {
-            text = String.format("Pengeluaranmu sebesar %s melebihi pemasukan %s bulan ini. Tinjau anggaran kategorimu untuk mencari peluang penghematan.", FormatUtil.formatCurrency(expense), FormatUtil.formatCurrency(income));
+            text = String.format("Pengeluaranmu sebesar %s melebihi pemasukan %s bulan ini. Tinjau anggaran kategorimu untuk mencari peluang penghematan.", FormatUtil.formatIdr(expense), FormatUtil.formatIdr(income));
         }
         narrativeText.setText(text);
     }

@@ -36,6 +36,9 @@ public class ProfileControllers {
     @FXML private PasswordField passwordField;
     @FXML private Label passwordHint;
 
+    @FXML private Label currencyDisplay;
+    @FXML private ComboBox<String> currencyCombo;
+
     @FXML private Label statusLabel;
     @FXML private Button btnEditProfile;
     @FXML private Button btnCancel;
@@ -55,6 +58,8 @@ public class ProfileControllers {
         Circle clip = new Circle(50, 50, 50);
         profileImageView.setClip(clip);
 
+        currencyCombo.getItems().addAll("IDR", "USD");
+
         loadProfileData(user);
     }
 
@@ -65,6 +70,7 @@ public class ProfileControllers {
         int len = user.getPasswordLength();
         if (len <= 0) len = 8; // fallback default
         passwordDisplay.setText("•".repeat(len));
+        currencyDisplay.setText(user.getCurrency());
 
         // Avatar initial
         String initial = user.getUsername().substring(0, 1).toUpperCase();
@@ -116,16 +122,19 @@ public class ProfileControllers {
         usernameField.setText(user.getUsername());
         emailField.setText(user.getEmail());
         passwordField.setText("");
+        currencyCombo.setValue(user.getCurrency());
 
         // Sembunyikan display, tampilkan field
         usernameDisplay.setVisible(false); usernameDisplay.setManaged(false);
         emailDisplay.setVisible(false);    emailDisplay.setManaged(false);
         passwordDisplay.setVisible(false); passwordDisplay.setManaged(false);
+        currencyDisplay.setVisible(false); currencyDisplay.setManaged(false);
 
         usernameField.setVisible(true);  usernameField.setManaged(true);
         emailField.setVisible(true);     emailField.setManaged(true);
         passwordField.setVisible(true);  passwordField.setManaged(true);
         passwordHint.setVisible(true);   passwordHint.setManaged(true);
+        currencyCombo.setVisible(true);   currencyCombo.setManaged(true);
 
         // Tampilkan tombol ubah foto dan cancel
         btnChangePhoto.setVisible(true);  btnChangePhoto.setManaged(true);
@@ -156,11 +165,13 @@ public class ProfileControllers {
         usernameDisplay.setVisible(true);  usernameDisplay.setManaged(true);
         emailDisplay.setVisible(true);     emailDisplay.setManaged(true);
         passwordDisplay.setVisible(true);  passwordDisplay.setManaged(true);
+        currencyDisplay.setVisible(true);  currencyDisplay.setManaged(true);
 
         usernameField.setVisible(false);  usernameField.setManaged(false);
         emailField.setVisible(false);     emailField.setManaged(false);
         passwordField.setVisible(false);  passwordField.setManaged(false);
         passwordHint.setVisible(false);   passwordHint.setManaged(false);
+        currencyCombo.setVisible(false);   currencyCombo.setManaged(false);
 
         // Sembunyikan tombol ubah foto dan cancel
         btnChangePhoto.setVisible(false); btnChangePhoto.setManaged(false);
@@ -238,6 +249,8 @@ public class ProfileControllers {
             }
         }
 
+        String newCurrency = currencyCombo.getValue();
+
         User current = SessionManager.getCurrentUser();
 
         // Cek apakah email berubah dan sudah digunakan user lain
@@ -254,8 +267,9 @@ public class ProfileControllers {
         boolean passwordChanged = newPassword != null && !newPassword.isEmpty();
         boolean photoChanged = (selectedPhotoPath == null && current.getProfilePhoto() != null)
                 || (selectedPhotoPath != null && !selectedPhotoPath.equals(current.getProfilePhoto()));
+        boolean currencyChanged = !newCurrency.equals(current.getCurrency());
 
-        if (!usernameChanged && !emailChanged && !passwordChanged && !photoChanged) {
+        if (!usernameChanged && !emailChanged && !passwordChanged && !photoChanged && !currencyChanged) {
             // Tidak ada data diperbaharui
             showStatus("Tidak ada data diperbaharui.", "info");
             Toast.show("Tidak ada data diperbaharui");
@@ -270,7 +284,8 @@ public class ProfileControllers {
                 newUsername,
                 newEmail,
                 passwordChanged ? newPassword : null,
-                selectedPhotoPath
+                selectedPhotoPath,
+                newCurrency
         );
 
         if (result == 1) {

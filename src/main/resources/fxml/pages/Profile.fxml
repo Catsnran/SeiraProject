@@ -72,6 +72,13 @@
                         <Label fx:id="passwordHint" text="Kosongkan jika tidak ingin mengubah password" styleClass="mini-label" visible="false" managed="false"/>
                     </VBox>
 
+                    <!-- Currency Preference -->
+                    <VBox spacing="6">
+                        <Label text="MATA UANG UTAMA" styleClass="field-label"/>
+                        <Label fx:id="currencyDisplay" styleClass="profile-field-display"/>
+                        <ComboBox fx:id="currencyCombo" styleClass="login-field" visible="false" managed="false"/>
+                    </VBox>
+
                     <!-- Status Message -->
                     <Label fx:id="statusLabel" text="" visible="false" managed="false"/>
 
