@@ -28,7 +28,7 @@
         <VBox spacing="0" styleClass="card" VBox.vgrow="ALWAYS">
             <HBox alignment="CENTER_LEFT" styleClass="ledger-header">
                 <padding><Insets bottom="14" left="20" right="20" top="14" /></padding>
-                <Label styleClass="card-title" text="Buku Besar" HBox.hgrow="ALWAYS" />
+                <Label prefHeight="17.0" prefWidth="536.0" styleClass="card-title" text="Buku Besar" HBox.hgrow="ALWAYS" />
                 <Button onAction="#exportCsv" styleClass="btn-ghost" text="⬇ Ekspor CSV" />
             </HBox>
 

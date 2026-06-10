@@ -1,73 +1,72 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.control.*?>
+
 <?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<ScrollPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.seira.controllers.AccountsControllers"
-            fitToWidth="true" styleClass="page-scroll" hbarPolicy="NEVER">
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" styleClass="page-scroll" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.12" fx:controller="com.seira.controllers.AccountsControllers">
 
-    <VBox styleClass="page-content" spacing="24">
-        <padding><Insets top="32" left="32" bottom="32" right="32"/></padding>
+    <VBox spacing="24" styleClass="page-content">
+        <padding><Insets bottom="32" left="32" right="32" top="32" /></padding>
 
         <!-- Header -->
         <HBox alignment="CENTER_LEFT">
             <VBox spacing="4" HBox.hgrow="ALWAYS">
-                <Label text="Akun" styleClass="page-title"/>
-                <Label text="Ringkasan editorial likuiditas yang kamu kurasi." styleClass="page-subtitle"/>
+                <Label styleClass="page-title" text="Akun" />
+                <Label styleClass="page-subtitle" text="Ringkasan editorial likuiditas yang kamu kurasi." />
             </VBox>
-            <Button text="＋ Tambah Akun Baru" styleClass="btn-primary" onAction="#openAddAccount"/>
+            <Button onAction="#openAddAccount" styleClass="btn-primary" text="＋ Tambah Akun Baru" />
         </HBox>
 
         <!-- Total Liquidity card -->
         <HBox spacing="20">
-            <VBox styleClass="card" HBox.hgrow="ALWAYS" spacing="16">
-                <padding><Insets top="24" left="24" bottom="24" right="24"/></padding>
+            <VBox spacing="16" styleClass="card" HBox.hgrow="ALWAYS">
+                <padding><Insets bottom="24" left="24" right="24" top="24" /></padding>
                 <HBox alignment="CENTER_LEFT">
                     <VBox spacing="8" HBox.hgrow="ALWAYS">
-                        <Label text="TOTAL LIKUIDITAS" styleClass="mini-label"/>
-                        <Label fx:id="totalLiquidityLabel" text="Rp 0" styleClass="stat-large"/>
-                        <Label fx:id="liquidityChangeLabel" text="" styleClass="stat-change-positive"/>
+                        <Label styleClass="mini-label" text="TOTAL LIKUIDITAS" />
+                        <Label fx:id="totalLiquidityLabel" styleClass="stat-large" text="Rp 0" />
+                        <Label fx:id="liquidityChangeLabel" styleClass="stat-change-positive" text="" />
                     </VBox>
-                    <Label text="🏛" style="-fx-font-size: 48; -fx-opacity: 0.25;"/>
+                    <Label style="-fx-font-size: 48; -fx-opacity: 0.25;" text="🏛" />
                 </HBox>
                 <!-- Diversification bar -->
                 <VBox spacing="8">
-                    <Label text="DIVERSIFIKASI ASET" styleClass="mini-label"/>
-                    <Pane fx:id="diversificationBar" prefHeight="10" prefWidth="400" maxWidth="Infinity" styleClass="diversification-bar-bg"/>
+                    <Label styleClass="mini-label" text="DIVERSIFIKASI ASET" />
+                    <Pane fx:id="diversificationBar" maxWidth="Infinity" prefHeight="10" prefWidth="400" styleClass="diversification-bar-bg" />
                 </VBox>
             </VBox>
         </HBox>
 
         <!-- Account Cards -->
-        <Label text="Sumber Dana" styleClass="card-title">
-            <VBox.margin><Insets top="8"/></VBox.margin>
+        <Label styleClass="card-title" text="Sumber Dana">
+            <VBox.margin><Insets top="8" /></VBox.margin>
         </Label>
-        <ScrollPane hbarPolicy="AS_NEEDED" vbarPolicy="NEVER" fitToHeight="true" prefHeight="220" styleClass="cards-scroll">
-            <HBox fx:id="accountCardsBox" spacing="16" alignment="CENTER_LEFT">
-                <padding><Insets top="4" bottom="12"/></padding>
+        <ScrollPane fitToHeight="true" hbarPolicy="AS_NEEDED" prefHeight="220" styleClass="cards-scroll" vbarPolicy="NEVER">
+            <HBox fx:id="accountCardsBox" alignment="CENTER_LEFT" spacing="16">
+                <padding><Insets bottom="12" top="4" /></padding>
             </HBox>
         </ScrollPane>
 
         <!-- Recent Allocations table -->
-        <VBox styleClass="card" spacing="0">
-            <HBox styleClass="ledger-header" alignment="CENTER_LEFT">
-                <padding><Insets top="16" left="20" bottom="16" right="20"/></padding>
-                <Label text="Alokasi Terkini" styleClass="card-title" HBox.hgrow="ALWAYS"/>
-                <Label text="Lihat Semua" styleClass="link-small"/>
+        <VBox spacing="0" styleClass="card">
+            <HBox alignment="CENTER_LEFT" styleClass="ledger-header">
+                <padding><Insets bottom="16" left="20" right="20" top="16" /></padding>
+                <Label prefHeight="17.0" prefWidth="192.0" styleClass="card-title" text="Alokasi Terkini" HBox.hgrow="ALWAYS" />
+                <Label styleClass="link-small" text="Lihat Semua" />
             </HBox>
 
             <!-- Column headers -->
             <HBox spacing="16" styleClass="table-header">
-                <padding><Insets top="10" left="20" bottom="10" right="20"/></padding>
-                <Label text="" prefWidth="36"/>
-                <Label text="AKUN" styleClass="col-header" HBox.hgrow="ALWAYS"/>
-                <Label text="STATUS" styleClass="col-header" prefWidth="100"/>
+                <padding><Insets bottom="10" left="20" right="20" top="10" /></padding>
+                <Label prefWidth="36" text="" />
+                <Label styleClass="col-header" text="AKUN" HBox.hgrow="ALWAYS" />
+                <Label prefWidth="100" styleClass="col-header" text="STATUS" />
                 <!-- <Label text="SINKRONISASI TERAKHchIR" styleClass="col-header" prefWidth="130"/> -->
-                <Label text="SALDO" styleClass="col-header" prefWidth="160"/>
+                <Label prefWidth="160" styleClass="col-header" text="SALDO" />
             </HBox>
 
-            <VBox fx:id="recentAllocationsList" styleClass="transaction-list"/>
+            <VBox fx:id="recentAllocationsList" styleClass="transaction-list" />
         </VBox>
     </VBox>
 </ScrollPane>
