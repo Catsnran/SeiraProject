@@ -7,6 +7,7 @@ import com.seira.utils.FormatUtil;
 import com.seira.utils.SessionManager;
 import com.seira.utils.StyledDialog;
 import com.seira.utils.Toast;
+import com.seira.utils.YahooFinanceService;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -286,6 +287,9 @@ public class BudgetControllers {
             }
         });
 
+        String currencyCode = FormatUtil.getCurrencyCode();
+        String currencyLabel = "USD".equalsIgnoreCase(currencyCode) ? "USD" : "Rp";
+
         Stage dialog = new StyledDialog.Builder()
                 .title("Tambah Anggaran")
                 .subtitle("Atur batas pengeluaran per kategori")
@@ -294,7 +298,7 @@ public class BudgetControllers {
                 .content(
                         periodBadge,
                         StyledDialog.fieldGroup("KATEGORI", catCombo),
-                        StyledDialog.fieldGroup("JUMLAH ANGGARAN (Rp)", amtField),
+                        StyledDialog.fieldGroup("JUMLAH ANGGARAN (" + currencyLabel + ")", amtField),
                         errLbl
                 )
                 .onConfirm(() -> {
@@ -317,11 +321,19 @@ public class BudgetControllers {
                             return;
                         }
 
+                        BigDecimal amountInIdr;
+                        if ("USD".equalsIgnoreCase(currencyCode)) {
+                            double converted = YahooFinanceService.convertPrice(newAmount.doubleValue(), "USD", "IDR");
+                            amountInIdr = BigDecimal.valueOf(converted);
+                        } else {
+                            amountInIdr = newAmount;
+                        }
+
                         System.out.println(catCombo.getValue());
                         Budget b = new Budget();
                         b.setUserId(userId);
                         b.setCategoryId(catCombo.getValue().getId());
-                        b.setAmount(newAmount);
+                        b.setAmount(amountInIdr);
                         b.setPeriod(currentPeriod);
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
@@ -342,8 +354,16 @@ public class BudgetControllers {
     }
 
     private void showEditBudgetDialog(Budget b) {
+        double amountInUserCurrency = b.getAmount().doubleValue();
+        String currencyCode = FormatUtil.getCurrencyCode();
+        if ("USD".equalsIgnoreCase(currencyCode)) {
+            amountInUserCurrency = YahooFinanceService.convertPrice(amountInUserCurrency, "IDR", "USD");
+        }
+
         TextField amtField = StyledDialog.field("Jumlah anggaran");
-        amtField.setText(b.getAmount().toPlainString());
+        amtField.setText("USD".equalsIgnoreCase(currencyCode)
+            ? String.format(java.util.Locale.US, "%.2f", amountInUserCurrency)
+            : String.format(java.util.Locale.US, "%.0f", amountInUserCurrency));
 
         Label infoBadge = new Label("📌  " + b.getCategoryName() + " — " +
                 currentPeriod.getMonth().getDisplayName(TextStyle.SHORT, new Locale("id","ID")) + " " + currentPeriod.getYear());
@@ -351,6 +371,7 @@ public class BudgetControllers {
                 "-fx-padding: 6 12; -fx-background-radius: 6;");
 
         Label errLbl = StyledDialog.errorLabel();
+        String currencyLabel = "USD".equalsIgnoreCase(currencyCode) ? "USD" : "Rp";
 
         Stage dialog = new StyledDialog.Builder()
                 .title("Edit Anggaran")
@@ -359,14 +380,22 @@ public class BudgetControllers {
                 .confirmText("Simpan Perubahan")
                 .content(
                         infoBadge,
-                        StyledDialog.fieldGroup("JUMLAH ANGGARAN BARU (Rp)", amtField),
+                        StyledDialog.fieldGroup("JUMLAH ANGGARAN BARU (" + currencyLabel + ")", amtField),
                         errLbl
                 )
                 .onConfirm(() -> {
                     String txt = amtField.getText().trim();
                     if (txt.isEmpty()) { StyledDialog.showError(errLbl, "Jumlah tidak boleh kosong."); return; }
                     try {
-                        b.setAmount(new BigDecimal(txt));
+                        BigDecimal enteredAmount = new BigDecimal(txt);
+                        BigDecimal amountInIdr;
+                        if ("USD".equalsIgnoreCase(currencyCode)) {
+                            double converted = YahooFinanceService.convertPrice(enteredAmount.doubleValue(), "USD", "IDR");
+                            amountInIdr = BigDecimal.valueOf(converted);
+                        } else {
+                            amountInIdr = enteredAmount;
+                        }
+                        b.setAmount(amountInIdr);
 
                         DAOFactory.getBudgetDAO().save(b);
                         amtField.getScene().getWindow().hide();
