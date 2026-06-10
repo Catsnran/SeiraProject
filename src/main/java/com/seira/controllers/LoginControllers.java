@@ -5,6 +5,7 @@ import com.seira.models.User;
 import com.seira.utils.NavigationManager;
 import com.seira.utils.SessionManager;
 import javafx.application.Platform;
+import java.util.concurrent.TimeUnit;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -52,5 +53,10 @@ public class LoginControllers {
     private void showError(String msg) {
         errorLabel.setText(msg);
         errorLabel.setVisible(true);
+
+        // pause 2s
+        javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.seconds(2));
+        delay.setOnFinished(event -> errorLabel.setVisible(false));
+        delay.play();
     }
 }

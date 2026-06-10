@@ -10,6 +10,7 @@ public interface IPaymentMethodDAO {
     PaymentMethod findById(int id);
     boolean add(PaymentMethod pm);
     boolean updateBalance(int id, BigDecimal balance);
+    boolean update(PaymentMethod pm);
     boolean delete(int id);
     double getTotalLiquidity(int userId);
     double getLiquidityByType(int userId, String type);

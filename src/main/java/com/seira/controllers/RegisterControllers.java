@@ -34,8 +34,8 @@ public class RegisterControllers {
         if (!email.contains("@") || !email.matches("^[\\w.+-]+@[\\w-]+\\.[\\w.]+$")) {
             showError("Format email tidak valid (harus mengandung '@' dan domain)."); return;
         }
-        if (password.length() < 8) {
-            showError("Password minimal harus 8 karakter."); return;
+        if (password.length() < 6) {
+            showError("Password minimal harus 6 karakter."); return;
         }
         if (!password.matches("(?=.*[A-Z])(?=.*[a-z])(?=.*\\d).+")) {
             showError("Password harus mengandung setidaknya satu huruf besar, satu huruf kecil, dan satu angka."); return;

@@ -6,6 +6,8 @@ import com.seira.models.PaymentMethod;
 import com.seira.models.Transaction;
 import com.seira.utils.SessionManager;
 import com.seira.utils.Toast;
+import com.seira.utils.FormatUtil;
+import com.seira.utils.YahooFinanceService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -69,7 +71,12 @@ public class AddTransactionControllers {
     public void setEditMode(Transaction t) {
         this.editTarget = t;
         this.type = t.getType();
-        amountStr = new StringBuilder(t.getAmount().toBigInteger().toString());
+        double amtUser = t.getAmount().doubleValue();
+        String userCurrency = FormatUtil.getCurrencyCode();
+        if ("USD".equalsIgnoreCase(userCurrency)) {
+            amtUser = YahooFinanceService.convertPrice(amtUser, "IDR", "USD");
+        }
+        amountStr = new StringBuilder(String.format(java.util.Locale.US, "%.0f", amtUser));
         updateAmountDisplay();
         datePicker.setValue(t.getDate());
         if (t.getReference() != null) referenceField.setText(t.getReference());
@@ -247,12 +254,20 @@ public class AddTransactionControllers {
         isUpdatingAmount = true;
         try {
             long val = Long.parseLong(amountStr.toString());
-            String formatted = "Rp " + String.format("%,d", val).replace(',', '.');
+            String currency = FormatUtil.getCurrencyCode();
+            String formatted;
+            if ("USD".equalsIgnoreCase(currency)) {
+                formatted = "$ " + String.format(java.util.Locale.US, "%,d", val);
+            } else {
+                formatted = "Rp " + String.format("%,d", val).replace(',', '.');
+            }
             amountDisplay.setText(formatted);
             amountDisplay.positionCaret(formatted.length());
         } catch (NumberFormatException e) {
-            amountDisplay.setText("Rp 0");
-            amountDisplay.positionCaret(4);
+            String currency = FormatUtil.getCurrencyCode();
+            String prefix = "USD".equalsIgnoreCase(currency) ? "$ " : "Rp ";
+            amountDisplay.setText(prefix + "0");
+            amountDisplay.positionCaret(prefix.length() + 1);
         } finally {
             isUpdatingAmount = false;
         }
@@ -270,6 +285,14 @@ public class AddTransactionControllers {
 
         if (accountCombo.getValue() == null) { showError("Pilih akun terlebih dahulu."); return; }
 
+        BigDecimal amountInIdr;
+        String userCurrency = FormatUtil.getCurrencyCode();
+        if ("USD".equalsIgnoreCase(userCurrency)) {
+            double converted = YahooFinanceService.convertPrice(amount, "USD", "IDR");
+            amountInIdr = BigDecimal.valueOf(converted);
+        } else {
+            amountInIdr = BigDecimal.valueOf(amount);
+        }
 
         if ("TRANSFER".equals(type)) {
             // Transfer: kurangi dari akun asal, tambah ke akun tujuan
@@ -286,14 +309,14 @@ public class AddTransactionControllers {
 
             Transaction out = new Transaction();
             out.setUserId(userId); out.setDescription(desc);
-            out.setAmount(BigDecimal.valueOf(amount)); out.setType("EXPENSE");
+            out.setAmount(amountInIdr); out.setType("EXPENSE");
             out.setDate(datePicker.getValue()); out.setCategoryId(catId);
             out.setPaymentMethodId(from.getId());
             out.setReference("TRANSFER"); out.setNotes("Transfer ke " + to.getName());
 
             Transaction in = new Transaction();
             in.setUserId(userId); in.setDescription("Transfer dari " + from.getName());
-            in.setAmount(BigDecimal.valueOf(amount)); in.setType("INCOME");
+            in.setAmount(amountInIdr); in.setType("INCOME");
             in.setDate(datePicker.getValue()); in.setCategoryId(catId);
             in.setPaymentMethodId(to.getId());
             in.setReference("TRANSFER"); in.setNotes("Dari " + from.getName());
@@ -320,7 +343,7 @@ public class AddTransactionControllers {
         Transaction t = editTarget != null ? editTarget : new Transaction();
         t.setUserId(userId);
         t.setDescription(desc);
-        t.setAmount(BigDecimal.valueOf(amount));
+        t.setAmount(amountInIdr);
         t.setType(type);
         t.setDate(datePicker.getValue());
         t.setCategoryId(categoryCombo.getValue().getId());

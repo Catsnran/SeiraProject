@@ -93,7 +93,7 @@ public class DashboardControllers {
 
         // Investasi = hanya akun bertipe INVESTMENT
         // Liquid assets = semua akun SELAIN INVESTMENT
-        double investments = DAOFactory.getPaymentMethodDAO().getLiquidityByType(userId, "INVESTMENT");
+        double investments = DAOFactory.getPaymentMethodDAO().getLiquidityByType(userId, "saham");
         double liquidAssets = DAOFactory.getPaymentMethodDAO().getLiquidityExcludingType(userId, "INVESTMENT");
 
         // Net Worth = total semua saldo akun

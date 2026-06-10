@@ -11,6 +11,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.seira.utils.YahooFinanceService;
+import com.seira.utils.SessionManager;
+
 public class PaymentMethodDAO implements IPaymentMethodDAO {
 
     @Override
@@ -70,6 +73,21 @@ public class PaymentMethodDAO implements IPaymentMethodDAO {
     }
 
     @Override
+    public boolean update(PaymentMethod pm) {
+        try {
+            PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
+                "UPDATE payment_methods SET name=?, balance=?, description=? WHERE id=?"
+            );
+            ps.setString(1, pm.getName());
+            ps.setDouble(2, pm.getBalance().doubleValue());
+            ps.setString(3, pm.getDescription());
+            ps.setInt(4, pm.getId());
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException e) { return false; }
+    }
+
+    @Override
     public boolean delete(int id) {
         try {
             PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
@@ -97,15 +115,54 @@ public class PaymentMethodDAO implements IPaymentMethodDAO {
     }
 
     private double sumByFilter(int userId, String type, boolean exclude) {
+        if (type != null && "saham".equalsIgnoreCase(type) && !exclude) {
+            double stockTotal = 0;
+            try {
+                PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(
+                    "SELECT stock_symbol, total_lot FROM stock_assets WHERE user_id=?"
+                );
+                ps.setInt(1, userId);
+                ResultSet rs = ps.executeQuery();
+                String userCurrency = SessionManager.getCurrentUser() != null
+                        ? SessionManager.getCurrentUser().getCurrency()
+                        : "IDR";
+                while (rs.next()) {
+                    String symbol = rs.getString("stock_symbol");
+                    int totalLot = rs.getInt("total_lot");
+                    YahooFinanceService.StockChartData data = YahooFinanceService.getChartData(symbol);
+                    if (data != null && data.getPrices() != null && !data.getPrices().isEmpty()) {
+                        double rawPrice = data.getPrices().get(data.getPrices().size() - 1).getPrice();
+                        String stockCurrency = data.getCurrency();
+                        double price = YahooFinanceService.convertPrice(rawPrice, stockCurrency, userCurrency);
+                        stockTotal += price * totalLot * 100;
+                    }
+                }
+                rs.close();
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return stockTotal;
+        }
+
         try {
             String sql = "SELECT COALESCE(SUM(balance),0) FROM payment_methods WHERE user_id=?";
-            if (type != null) sql += exclude ? " AND type!=?" : " AND type=?";
+            if (type != null) {
+                sql += exclude ? " AND type!=?" : " AND type=?";
+            }
             PreparedStatement ps = DBConnection.getInstance().getConnection().prepareStatement(sql);
             ps.setInt(1, userId);
-            if (type != null) ps.setString(2, type);
+            if (type != null) {
+                ps.setString(2, type);
+            }
             ResultSet rs = ps.executeQuery();
-            return rs.next() ? rs.getDouble(1) : 0;
-        } catch (SQLException e) { return 0; }
+            double val = rs.next() ? rs.getDouble(1) : 0;
+            rs.close();
+            ps.close();
+            return val;
+        } catch (SQLException e) {
+            return 0;
+        }
     }
 
     private PaymentMethod map(ResultSet rs) throws SQLException {

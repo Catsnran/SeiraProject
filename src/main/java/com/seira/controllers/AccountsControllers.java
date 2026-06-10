@@ -210,13 +210,16 @@ public class AccountsControllers {
         ComboBox<String> typeCombo = StyledDialog.combo();
         typeCombo.getItems().addAll("CASH", "M-BANKING", "SAVINGS", "E-WALLET", "Saham");
         typeCombo.setValue("M-BANKING");
-        TextField balanceField = StyledDialog.field("Saldo awal (mis: 5000000)");
+        String currencyCode = FormatUtil.getCurrencyCode();
+        String currencyLabel = "USD".equalsIgnoreCase(currencyCode) ? "USD" : "Rp";
+        String promptMsg = "USD".equalsIgnoreCase(currencyCode) ? "Saldo awal (mis: 350)" : "Saldo awal (mis: 5000000)";
+        TextField balanceField = StyledDialog.field(promptMsg);
         TextField descField = StyledDialog.field("Deskripsi (mis: Rekening utama)");
         Label errLbl = StyledDialog.errorLabel();
 
         VBox nameGroup = StyledDialog.fieldGroup("NAMA AKUN", nameField);
         VBox typeGroup = StyledDialog.fieldGroup("TIPE AKUN", typeCombo);
-        VBox balanceGroup = StyledDialog.fieldGroup("SALDO AWAL (Rp)", balanceField);
+        VBox balanceGroup = StyledDialog.fieldGroup("SALDO AWAL (" + currencyLabel + ")", balanceField);
         VBox descGroup = StyledDialog.fieldGroup("DESKRIPSI", descField);
 
         // Saham specific fields
@@ -359,7 +362,14 @@ public class AccountsControllers {
                             return;
                         }
                         try {
-                            BigDecimal bal = new BigDecimal(balText.isEmpty() ? "0" : balText);
+                            BigDecimal bal;
+                            String userCurrency = FormatUtil.getCurrencyCode();
+                            if ("USD".equalsIgnoreCase(userCurrency)) {
+                                double idrVal = YahooFinanceService.convertPrice(Double.parseDouble(balText.isEmpty() ? "0" : balText), "USD", "IDR");
+                                bal = BigDecimal.valueOf(idrVal);
+                            } else {
+                                bal = new BigDecimal(balText.isEmpty() ? "0" : balText);
+                            }
                             if(bal.signum() == -1){
                                 StyledDialog.showError(errLbl, "Bro, akun lu kok bisa kurang dari 0 jir");
                                 return;
@@ -375,7 +385,7 @@ public class AccountsControllers {
                             loadData();
                             Toast.showSuccess("Akun berhasil ditambahkan ✓");
                         } catch (NumberFormatException e) {
-                            StyledDialog.showError(errLbl, "Saldo harus berupa angka (tanpa titik/koma).");
+                            StyledDialog.showError(errLbl, "Saldo harus berupa angka.");
                         }
                     }
                 })
@@ -388,9 +398,20 @@ public class AccountsControllers {
         nameField.setText(pm.getName());
         TextField descField = StyledDialog.field("Deskripsi");
         descField.setText(pm.getDescription() != null ? pm.getDescription() : "");
+
+        double balanceInUserCurrency = pm.getBalance().doubleValue();
+        String currencyCode = FormatUtil.getCurrencyCode();
+        if ("USD".equalsIgnoreCase(currencyCode)) {
+            balanceInUserCurrency = YahooFinanceService.convertPrice(balanceInUserCurrency, "IDR", "USD");
+        }
+
         TextField balField = StyledDialog.field("Saldo");
-        balField.setText(pm.getBalance().toPlainString());
+        balField.setText("USD".equalsIgnoreCase(currencyCode)
+            ? String.format(java.util.Locale.US, "%.2f", balanceInUserCurrency)
+            : String.format(java.util.Locale.US, "%.0f", balanceInUserCurrency));
+
         Label errLbl = StyledDialog.errorLabel();
+        String currencyLabel = "USD".equalsIgnoreCase(currencyCode) ? "USD" : "Rp";
 
         Stage dialog = new StyledDialog.Builder()
                 .title("Edit Akun")
@@ -400,14 +421,25 @@ public class AccountsControllers {
                 .content(
                         StyledDialog.fieldGroup("NAMA AKUN", nameField),
                         StyledDialog.fieldGroup("DESKRIPSI", descField),
-                        StyledDialog.fieldGroup("SALDO (Rp)", balField),
+                        StyledDialog.fieldGroup("SALDO (" + currencyLabel + ")", balField),
                         errLbl)
                 .onConfirm(() -> {
                     try {
+                        BigDecimal bal;
+                        if ("USD".equalsIgnoreCase(currencyCode)) {
+                            double idrVal = YahooFinanceService.convertPrice(Double.parseDouble(balField.getText().trim()), "USD", "IDR");
+                            bal = BigDecimal.valueOf(idrVal);
+                        } else {
+                            bal = new BigDecimal(balField.getText().trim());
+                        }
+                        if(bal.signum() == -1){
+                            StyledDialog.showError(errLbl, "Bro, akun lu kok bisa kurang dari 0 jir");
+                            return;
+                        }
                         pm.setName(nameField.getText().trim());
                         pm.setDescription(descField.getText().trim());
-                        pm.setBalance(new BigDecimal(balField.getText().trim()));
-                        DAOFactory.getPaymentMethodDAO().updateBalance(pm.getId(), pm.getBalance());
+                        pm.setBalance(bal);
+                        DAOFactory.getPaymentMethodDAO().update(pm);
                         nameField.getScene().getWindow().hide();
                         loadData();
                         Toast.showSuccess("Akun berhasil diperbarui ✓");
