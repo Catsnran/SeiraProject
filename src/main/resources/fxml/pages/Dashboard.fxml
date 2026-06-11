@@ -18,7 +18,7 @@
             </VBox>
             <HBox spacing="12">
                 <Button text="Ekspor Catatan" styleClass="btn-outline" onAction="#exportLedger"/>
-                <Button text="Tinjauan Bulanan" styleClass="btn-primary" onAction="#openMonthlyReview"/>
+                <Button fx:id="monthlyReviewBtn" text="Tinjauan Bulanan" styleClass="btn-primary" onAction="#openMonthlyReview"/>
             </HBox>
         </HBox>
 

@@ -21,17 +21,28 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.application.Platform;
 
+import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.math.BigDecimal;
+import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
+import javafx.stage.Stage;
+import com.seira.utils.StyledDialog;
 
 public class DashboardControllers {
 
     @FXML
     private Label netWorthLabel;
+    @FXML
+    private Button monthlyReviewBtn;
+
+    private LocalDate customStartDate = null;
+    private LocalDate customEndDate = null;
     @FXML
     private Label netWorthChange;
     @FXML
@@ -84,10 +95,43 @@ public class DashboardControllers {
         YearMonth now = YearMonth.now();
         YearMonth prev = now.minusMonths(1);
 
-        double income = DAOFactory.getReportDAO().getTotalIncome(userId, now);
-        double expense = DAOFactory.getReportDAO().getTotalExpense(userId, now);
-        double prevIncome = DAOFactory.getReportDAO().getTotalIncome(userId, prev);
-        double prevExpense = DAOFactory.getReportDAO().getTotalExpense(userId, prev);
+        double income;
+        double expense;
+        double prevIncome;
+        double prevExpense;
+
+        if (customStartDate != null && customEndDate != null) {
+            List<Transaction> incomeTxs = DAOFactory.getTransactionDAO().findAll(userId, "INCOME", customStartDate, customEndDate, null);
+            income = incomeTxs.stream().mapToDouble(t -> t.getAmount().doubleValue()).sum();
+
+            List<Transaction> expenseTxs = DAOFactory.getTransactionDAO().findAll(userId, "EXPENSE", customStartDate, customEndDate, null);
+            expense = expenseTxs.stream().mapToDouble(t -> t.getAmount().doubleValue()).sum();
+
+            long days = java.time.temporal.ChronoUnit.DAYS.between(customStartDate, customEndDate) + 1;
+            LocalDate prevEndDate = customStartDate.minusDays(1);
+            LocalDate prevStartDate = prevEndDate.minusDays(days - 1);
+
+            List<Transaction> prevIncomeTxs = DAOFactory.getTransactionDAO().findAll(userId, "INCOME", prevStartDate, prevEndDate, null);
+            prevIncome = prevIncomeTxs.stream().mapToDouble(t -> t.getAmount().doubleValue()).sum();
+
+            List<Transaction> prevExpenseTxs = DAOFactory.getTransactionDAO().findAll(userId, "EXPENSE", prevStartDate, prevEndDate, null);
+            prevExpense = prevExpenseTxs.stream().mapToDouble(t -> t.getAmount().doubleValue()).sum();
+            
+            if (monthlyReviewBtn != null) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy");
+                monthlyReviewBtn.setText("Tinjauan: " + customStartDate.format(formatter) + " - " + customEndDate.format(formatter));
+            }
+        } else {
+            income = DAOFactory.getReportDAO().getTotalIncome(userId, now);
+            expense = DAOFactory.getReportDAO().getTotalExpense(userId, now);
+            prevIncome = DAOFactory.getReportDAO().getTotalIncome(userId, prev);
+            prevExpense = DAOFactory.getReportDAO().getTotalExpense(userId, prev);
+            
+            if (monthlyReviewBtn != null) {
+                monthlyReviewBtn.setText("Tinjauan Bulanan");
+            }
+        }
+
         double liquidity = DAOFactory.getPaymentMethodDAO().getTotalLiquidity(userId);
         double net = income - expense;
 
@@ -104,7 +148,11 @@ public class DashboardControllers {
         double prevNet = prevIncome - prevExpense;
         if (prevNet != 0) {
             double chg = (net - prevNet) / Math.abs(prevNet) * 100;
-            netWorthChange.setText(String.format("%+.1f%% dari bulan lalu", chg));
+            if (customStartDate != null && customEndDate != null) {
+                netWorthChange.setText(String.format("%+.1f%% dari periode lalu", chg));
+            } else {
+                netWorthChange.setText(String.format("%+.1f%% dari bulan lalu", chg));
+            }
             netWorthChange.getStyleClass().removeAll("stat-change-positive", "stat-change-negative");
             netWorthChange.getStyleClass().add(chg >= 0 ? "stat-change-positive" : "stat-change-negative");
         } else {
@@ -117,12 +165,20 @@ public class DashboardControllers {
 
         double incPct = prevIncome > 0 ? income / (prevIncome * 1.2) : (income > 0 ? 0.75 : 0);
         incomeProgress.setProgress(Math.min(incPct, 1.0));
-        incomeProgressLabel.setText(String.format("%.0f%% dari target bulanan proyeksi", Math.min(incPct * 100, 100)));
+        if (customStartDate != null && customEndDate != null) {
+            incomeProgressLabel.setText(String.format("%.0f%% dari target periode proyeksi", Math.min(incPct * 100, 100)));
+        } else {
+            incomeProgressLabel.setText(String.format("%.0f%% dari target bulanan proyeksi", Math.min(incPct * 100, 100)));
+        }
 
         double expPct = prevExpense > 0 ? expense / prevExpense : (expense > 0 ? 0.5 : 0);
         expenseProgress.setProgress(Math.min(expPct, 1.0));
         double expChange = prevExpense > 0 ? (expense - prevExpense) / prevExpense * 100 : 0;
-        expenseChangeLabel.setText(String.format("%+.0f%% vs bulan lalu", expChange));
+        if (customStartDate != null && customEndDate != null) {
+            expenseChangeLabel.setText(String.format("%+.0f%% vs periode lalu", expChange));
+        } else {
+            expenseChangeLabel.setText(String.format("%+.0f%% vs bulan lalu", expChange));
+        }
 
         if (expense <= prevExpense || prevExpense == 0) {
             burnLabel.setText("STABIL");
@@ -133,17 +189,39 @@ public class DashboardControllers {
         }
 
         // Daily burn
-        int daysPassed = java.time.LocalDate.now().getDayOfMonth();
+        int daysPassed;
+        if (customStartDate != null && customEndDate != null) {
+            daysPassed = (int) (java.time.temporal.ChronoUnit.DAYS.between(customStartDate, customEndDate) + 1);
+        } else {
+            daysPassed = java.time.LocalDate.now().getDayOfMonth();
+        }
         double dailyBurn = daysPassed > 0 ? expense / daysPassed : 0;
-        double prevDailyBurn = prev.lengthOfMonth() > 0 ? prevExpense / prev.lengthOfMonth() : 0;
+        
+        double prevDailyBurn;
+        if (customStartDate != null && customEndDate != null) {
+            long days = java.time.temporal.ChronoUnit.DAYS.between(customStartDate, customEndDate) + 1;
+            prevDailyBurn = days > 0 ? prevExpense / days : 0;
+        } else {
+            prevDailyBurn = prev.lengthOfMonth() > 0 ? prevExpense / prev.lengthOfMonth() : 0;
+        }
         double diff = dailyBurn - prevDailyBurn;
 
         if (diff < 0) {
-            burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata kuartal.",
-                    FormatUtil.formatIdr(Math.abs(diff))));
+            if (customStartDate != null && customEndDate != null) {
+                burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata periode lalu.",
+                        FormatUtil.formatIdr(Math.abs(diff))));
+            } else {
+                burnRateDesc.setText(String.format("Kamu menghemat %s per hari dibanding rata-rata kuartal.",
+                        FormatUtil.formatIdr(Math.abs(diff))));
+            }
         } else {
-            burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari bulan lalu.",
-                    FormatUtil.formatIdr(diff)));
+            if (customStartDate != null && customEndDate != null) {
+                burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari periode lalu.",
+                        FormatUtil.formatIdr(diff)));
+            } else {
+                burnRateDesc.setText(String.format("Pengeluaran harianmu %s lebih tinggi dari bulan lalu.",
+                        FormatUtil.formatIdr(diff)));
+            }
         }
 
         // Draw charts after layout (bind to width)
@@ -167,16 +245,27 @@ public class DashboardControllers {
             investmentStrategyLabel.setText(
                     "Tambahkan pemasukan dan pengeluaran pertamamu untuk mulai mendapatkan analisis strategi keuangan.");
         } else if (savingsRate > 20) {
-            investmentStrategyLabel.setText(String.format(
-                    "Tingkat tabunganmu %.1f%% bulan ini — excellent! Pertimbangkan untuk mengalokasikan surplus ke instrumen investasi jangka panjang.",
-                    savingsRate));
+            if (customStartDate != null && customEndDate != null) {
+                investmentStrategyLabel.setText(String.format(
+                        "Tingkat tabunganmu %.1f%% periode ini — excellent! Pertimbangkan untuk mengalokasikan surplus ke instrumen investasi jangka panjang.",
+                        savingsRate));
+            } else {
+                investmentStrategyLabel.setText(String.format(
+                        "Tingkat tabunganmu %.1f%% bulan ini — excellent! Pertimbangkan untuk mengalokasikan surplus ke instrumen investasi jangka panjang.",
+                        savingsRate));
+            }
         } else if (savingsRate > 0) {
             investmentStrategyLabel.setText(String.format(
                     "Tingkat tabunganmu %.1f%%. Tinjau pengeluaran terbesarmu untuk meningkatkan surplus.",
                     savingsRate));
         } else {
-            investmentStrategyLabel.setText(
-                    "Pengeluaranmu melebihi pemasukan bulan ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
+            if (customStartDate != null && customEndDate != null) {
+                investmentStrategyLabel.setText(
+                        "Pengeluaranmu melebihi pemasukan periode ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
+            } else {
+                investmentStrategyLabel.setText(
+                        "Pengeluaranmu melebihi pemasukan bulan ini. Fokus pada pengurangan biaya diskresioner untuk kembali ke posisi surplus.");
+            }
         }
         
         loadStockData();
@@ -366,6 +455,91 @@ public class DashboardControllers {
 
     @FXML
     private void openMonthlyReview() {
+        DatePicker startPicker = new DatePicker();
+        DatePicker endPicker = new DatePicker();
+
+        // Style standard DatePickers to match the dialog
+        String pickerStyle = "-fx-background-color: #EDE7DC; -fx-border-color: transparent; " +
+                             "-fx-border-radius: 8; -fx-background-radius: 8; -fx-pref-height: 42; " +
+                             "-fx-font-size: 13; -fx-text-fill: #1A0F05; -fx-padding: 0 14;";
+        startPicker.setStyle(pickerStyle);
+        endPicker.setStyle(pickerStyle);
+        startPicker.setMaxWidth(Double.MAX_VALUE);
+        endPicker.setMaxWidth(Double.MAX_VALUE);
+
+        if (customStartDate != null) {
+            startPicker.setValue(customStartDate);
+        } else {
+            startPicker.setValue(LocalDate.now().withDayOfMonth(1));
+        }
+
+        if (customEndDate != null) {
+            endPicker.setValue(customEndDate);
+        } else {
+            endPicker.setValue(LocalDate.now());
+        }
+
+        Label errLabel = StyledDialog.errorLabel();
+
+        VBox content = new VBox(14);
+        content.getChildren().addAll(
+            StyledDialog.fieldGroup("MULAI TANGGAL", startPicker),
+            StyledDialog.fieldGroup("SAMPAI TANGGAL", endPicker),
+            errLabel
+        );
+
+        final Stage[] stageRef = new Stage[1];
+
+        Button resetBtn = new Button("Reset ke Bulan Ini");
+        resetBtn.setStyle(
+            "-fx-background-color: transparent; -fx-text-fill: #C0392B; -fx-font-size: 12; " +
+            "-fx-padding: 6 12; -fx-background-radius: 6; -fx-border-color: #E8C5C0; " +
+            "-fx-border-width: 1; -fx-border-radius: 6; -fx-cursor: hand;"
+        );
+        resetBtn.setMaxWidth(Double.MAX_VALUE);
+        resetBtn.setOnAction(e -> {
+            customStartDate = null;
+            customEndDate = null;
+            loadData();
+            if (stageRef[0] != null) {
+                stageRef[0].close();
+            }
+        });
+        content.getChildren().add(resetBtn);
+
+        StyledDialog.Builder builder = new StyledDialog.Builder()
+            .title("Tinjauan Bulanan")
+            .subtitle("Pilih rentang tanggal untuk memfilter ringkasan keuangan")
+            .icon("📅")
+            .confirmText("Terapkan")
+            .cancelText("Batal")
+            .content(content);
+
+        builder.onConfirm(() -> {
+            LocalDate start = startPicker.getValue();
+            LocalDate end = endPicker.getValue();
+
+            if (start == null || end == null) {
+                StyledDialog.showError(errLabel, "Tanggal mulai dan sampai harus diisi.");
+                return;
+            }
+            if (end.isBefore(start)) {
+                StyledDialog.showError(errLabel, "Tanggal sampai tidak boleh sebelum tanggal mulai.");
+                return;
+            }
+
+            customStartDate = start;
+            customEndDate = end;
+
+            loadData();
+
+            if (stageRef[0] != null) {
+                stageRef[0].close();
+            }
+        });
+
+        stageRef[0] = builder.build();
+        stageRef[0].showAndWait();
     }
 
     @FXML
